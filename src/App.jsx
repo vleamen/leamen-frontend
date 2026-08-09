@@ -281,8 +281,8 @@ export default function App() {
   const [scrollBounce, setScrollBounce] = useState(0); 
   const lastScrollTime = useRef(0); 
   
-  const API_BASE = 'leamen-backend-production.up.railway.app'; // KEEP YOUR LIVE URL HERE
-
+  const API_BASE = 'https://leamen-backend-production.up.railway.app';
+  
   useEffect(() => {
     fetch(`${API_BASE}/posts`)
       .then(res => res.json())
