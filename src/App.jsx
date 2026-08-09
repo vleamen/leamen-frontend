@@ -312,6 +312,17 @@ export default function App() {
       }
     };
 
+    // --- DYNAMIC TAB TITLE LOGIC ---
+  useEffect(() => {
+    if (overlayMode === 'contact') {
+      document.title = 'contact';
+    } else if (overlayMode === 'public_gallery' && ['code', 'design', 'music', 'shop'].includes(activePage)) {
+      document.title = activePage;
+    } else {
+      document.title = 'leamen';
+    }
+  }, [activePage, overlayMode]);
+
     handleUrlChange();
 
     window.addEventListener('popstate', handleUrlChange);
