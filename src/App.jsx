@@ -721,28 +721,69 @@ export default function App() {
               </motion.div>
             )}
 
-            {/* SHARED RETURN BUTTON */}
+            {/* SHARED RETURN BUTTON & GALLERY NAVIGATION */}
             {(overlayMode !== 'dev_dashboard' && overlayMode !== 'post_edit') && (
-              <motion.button
-                onClick={() => setOverlayMode('none')} 
+              <motion.div
                 initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
                 transition={{ delay: 0.15, duration: 0.5, ease: 'easeOut' }} 
-                whileHover={{ opacity: 0.6 }} 
-                // FIX 3: Changed bottom positioning to guarantee it never sinks below 30px from the visible bottom edge
                 style={{
-                  position: 'absolute', bottom: 'max(4vh, 30px)', fontFamily: 'inherit', fontSize: '1.4rem',
-                  color: '#FFFFFF', background: 'transparent', border: 'none', cursor: 'pointer',
-                  letterSpacing: '0.15em', textTransform: 'lowercase', padding: '1rem',
-                  zIndex: 100 
+                  position: 'absolute', bottom: 'max(4vh, 30px)', display: 'flex', alignItems: 'center', 
+                  gap: 'min(3rem, 8vw)', zIndex: 100 
                 }}
               >
-                return
-              </motion.button>
-            )}
+                
+                {/* PREVIOUS POST ARROW */}
+                {overlayMode === 'public_gallery' && (
+                  <motion.button
+                    animate={{ opacity: publicGalleryIndex > 0 ? 0.5 : 0 }}
+                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                    whileHover={publicGalleryIndex > 0 ? { opacity: 1, scale: 1.1 } : {}}
+                    onClick={() => publicGalleryIndex > 0 && setPublicGalleryIndex(p => p - 1)}
+                    style={{
+                      color: '#FFF', background: 'transparent', border: 'none', fontSize: '1.8rem', padding: '0.5rem',
+                      cursor: publicGalleryIndex > 0 ? 'pointer' : 'default', 
+                      pointerEvents: publicGalleryIndex > 0 ? 'auto' : 'none',
+                      fontFamily: 'inherit'
+                    }}
+                  >
+                    ←
+                  </motion.button>
+                )}
 
-          </motion.div>
-        )}
-      </AnimatePresence>
+                {/* THE RETURN BUTTON */}
+                <motion.button
+                  onClick={() => setOverlayMode('none')} 
+                  whileHover={{ opacity: 0.6 }} 
+                  style={{
+                    fontFamily: 'inherit', fontSize: '1.4rem', color: '#FFFFFF', background: 'transparent', 
+                    border: 'none', cursor: 'pointer', letterSpacing: '0.15em', textTransform: 'lowercase', 
+                    padding: '0.5rem 1rem'
+                  }}
+                >
+                  return
+                </motion.button>
+
+                {/* NEXT POST ARROW */}
+                {overlayMode === 'public_gallery' && (
+                  <motion.button
+                    animate={{ opacity: publicGalleryIndex < activeGroupPosts.length - 1 ? 0.5 : 0 }}
+                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                    whileHover={publicGalleryIndex < activeGroupPosts.length - 1 ? { opacity: 1, scale: 1.1 } : {}}
+                    onClick={() => publicGalleryIndex < activeGroupPosts.length - 1 && setPublicGalleryIndex(p => p + 1)}
+                    style={{
+                      color: '#FFF', background: 'transparent', border: 'none', fontSize: '1.8rem', padding: '0.5rem',
+                      cursor: publicGalleryIndex < activeGroupPosts.length - 1 ? 'pointer' : 'default', 
+                      pointerEvents: publicGalleryIndex < activeGroupPosts.length - 1 ? 'auto' : 'none',
+                      fontFamily: 'inherit'
+                    }}
+                  >
+                    →
+                  </motion.button>
+                )}
+
+              </motion.div>
+            )}          </motion.div>
+        )}      </AnimatePresence>
 
     </div>
   );
