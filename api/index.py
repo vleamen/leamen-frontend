@@ -6,10 +6,9 @@ from fastapi.security import APIKeyHeader
 from sqlalchemy import create_engine, Column, Integer, String, Text
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from pydantic import BaseModel, ConfigDict
+from typing import List, Optional
 import resend
 import time
-
-app = FastAPI()
 
 load_dotenv()
 
@@ -86,7 +85,6 @@ class LoginData(BaseModel):
 # FASTAPI APPLICATION
 # ---------------------------------------------------------
 app = FastAPI(title="Leamenweb CMS API")
-resend.api_key = os.getenv("RESEND_API_KEY")
 
 app.add_middleware(
     CORSMiddleware,
@@ -108,7 +106,7 @@ def get_db():
         db.close()
 
 # --- AUTHENTICATION ROUTE (Brute Force Protected) ---
-@app.post("/login")
+@app.post("/api/login")
 def login(req: Request, data: LoginData):
     ip = req.client.host
     current_time = time.time()
@@ -139,11 +137,11 @@ def login(req: Request, data: LoginData):
 
 
 # --- PUBLIC ROUTES ---
-@app.get("/posts", response_model=List[PostResponse])
+@app.get("/api/posts", response_model=List[PostResponse])
 def get_posts(db: Session = Depends(get_db)):
     return db.query(PostDB).order_by(PostDB.id.desc()).all()
 
-@app.post("/contact")
+@app.post("/api/contact")
 def send_contact_email(form: ContactForm):
     try:
         email_data = {
@@ -160,7 +158,7 @@ def send_contact_email(form: ContactForm):
 
 
 # --- PROTECTED CMS ROUTES (Require Admin Token) ---
-@app.post("/posts", response_model=PostResponse, dependencies=[Depends(verify_admin)])
+@app.post("/api/posts", response_model=PostResponse, dependencies=[Depends(verify_admin)])
 def create_post(post: PostBase, db: Session = Depends(get_db)):
     db_post = PostDB(**post.model_dump())
     db.add(db_post)
@@ -168,7 +166,7 @@ def create_post(post: PostBase, db: Session = Depends(get_db)):
     db.refresh(db_post)
     return db_post
 
-@app.put("/posts/{post_id}", response_model=PostResponse, dependencies=[Depends(verify_admin)])
+@app.put("/api/posts/{post_id}", response_model=PostResponse, dependencies=[Depends(verify_admin)])
 def update_post(post_id: int, post_update: PostBase, db: Session = Depends(get_db)):
     db_post = db.query(PostDB).filter(PostDB.id == post_id).first()
     if not db_post:
@@ -182,7 +180,7 @@ def update_post(post_id: int, post_update: PostBase, db: Session = Depends(get_d
     db.refresh(db_post)
     return db_post
 
-@app.delete("/posts/{post_id}", dependencies=[Depends(verify_admin)])
+@app.delete("/api/posts/{post_id}", dependencies=[Depends(verify_admin)])
 def delete_post(post_id: int, db: Session = Depends(get_db)):
     db_post = db.query(PostDB).filter(PostDB.id == post_id).first()
     if not db_post:
