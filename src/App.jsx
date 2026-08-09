@@ -513,7 +513,7 @@ export default function App() {
           <SphereCluster activePage={activePage} overlayMode={overlayMode} />
           <EffectComposer disableNormalPass>
             <Bloom luminanceThreshold={0.1} mipmapBlur intensity={4.0} />
-            <Noise opacity={0.06} />
+            <Noise opacity={0.07} />
           </EffectComposer>
         </Canvas>
       </div>
