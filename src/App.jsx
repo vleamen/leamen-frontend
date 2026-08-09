@@ -282,7 +282,7 @@ export default function App() {
   const lastScrollTime = useRef(0); 
   
   const API_BASE = 'https://leamen-backend-production.up.railway.app';
-  
+
   useEffect(() => {
     fetch(`${API_BASE}/posts`)
       .then(res => res.json())
@@ -513,7 +513,7 @@ export default function App() {
           <SphereCluster activePage={activePage} overlayMode={overlayMode} />
           <EffectComposer disableNormalPass>
             <Bloom luminanceThreshold={0.1} mipmapBlur intensity={4.0} />
-            <Noise opacity={0.05} />
+            <Noise opacity={0.06} />
           </EffectComposer>
         </Canvas>
       </div>
