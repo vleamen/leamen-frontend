@@ -258,9 +258,6 @@ const PostCard = ({ post, onClick, compact }) => {
 // ------------------------------------------------------------------
 // MAIN APP COMPONENT
 // ------------------------------------------------------------------
-// ------------------------------------------------------------------
-// MAIN APP COMPONENT
-// ------------------------------------------------------------------
 export default function App() {
   const [activePage, setActivePage] = useState('home');
   const [overlayMode, setOverlayMode] = useState('none'); 
@@ -275,7 +272,7 @@ export default function App() {
   const [devPassword, setDevPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState(false);
-  const [adminToken, setAdminToken] = useState(null); // Stores the secure session token
+  const [adminToken, setAdminToken] = useState(null); 
 
   const [posts, setPosts] = useState([]);
   const [editingPost, setEditingPost] = useState(null);
@@ -284,10 +281,8 @@ export default function App() {
   const [scrollBounce, setScrollBounce] = useState(0); 
   const lastScrollTime = useRef(0); 
   
-  // URL reference for the backend API
-  const API_BASE = 'https://leamen-backend-production.up.railway.app';
+  const API_BASE = 'https://leamen-backend-production.up.railway.app'; // KEEP YOUR LIVE URL HERE
 
-  // FETCH POSTS FROM BACKEND ON LOAD
   useEffect(() => {
     fetch(`${API_BASE}/posts`)
       .then(res => res.json())
@@ -348,7 +343,6 @@ export default function App() {
     }
   };
 
-  // SECURE BACKEND LOGIN
   const handleDevSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -360,7 +354,7 @@ export default function App() {
 
       if (response.ok) {
         const data = await response.json();
-        setAdminToken(data.token); // Store the secure token
+        setAdminToken(data.token); 
         setDevPassword('');
         setLoginError(false);
         setOverlayMode('dev_dashboard');
@@ -377,7 +371,6 @@ export default function App() {
     setOverlayMode('post_edit');
   };
 
-  // SAVE POST TO DATABASE
   const handleSavePost = async () => {
     const isNew = !editingPost.id;
     const method = isNew ? 'POST' : 'PUT';
@@ -388,7 +381,7 @@ export default function App() {
         method: method,
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${adminToken}` // Authenticate the request
+          'Authorization': `Bearer ${adminToken}` 
         },
         body: JSON.stringify(editingPost)
       });
@@ -404,10 +397,8 @@ export default function App() {
     }
   };
 
-  // DELETE POST FROM DATABASE
   const handleDeletePost = async () => {
     if (!editingPost.id) {
-      // It was a draft that was never saved
       setEditingPost(null);
       setOverlayMode('dev_dashboard');
       return;
@@ -446,10 +437,12 @@ export default function App() {
   };
 
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', backgroundColor: '#050505', color: '#F5F5F5', fontFamily: 'Palatino Light', margin: 0, overflow: 'hidden', position: 'relative' }}>
+    // FIX 1: Swapped 100vh for 100dvh to prevent mobile browsers from hiding the bottom
+    <div style={{ width: '100vw', height: '100dvh', display: 'flex', backgroundColor: '#050505', color: '#F5F5F5', fontFamily: 'Palatino Light', margin: 0, overflow: 'hidden', position: 'relative' }}>
       
       {/* LEFT PANEL: Navigation */}
-      <nav style={{ width: '300px', padding: '3rem', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '1rem', borderRight: '1px solid #1A1A1A', background: 'rgba(5, 5, 5, 0.2)', backdropFilter: 'blur(10px)' }}>
+      {/* FIX 2: Used responsive math min/max so the padding scales down gracefully on small screens without breaking the design */}
+      <nav style={{ width: 'min(300px, 80vw)', padding: 'min(3rem, 6vh) min(3rem, 6vw)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '1rem', borderRight: '1px solid #1A1A1A', background: 'rgba(5, 5, 5, 0.2)', backdropFilter: 'blur(10px)' }}>
         <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '1.2rem', textTransform: 'lowercase', letterSpacing: '0.02em', marginBottom: '2rem', color: '#666666' }}>
           leamen
         </h1>
@@ -494,7 +487,6 @@ export default function App() {
               key={item}
               onClick={() => {
                 if (item === 'Contact') setOverlayMode('contact');
-                // If they already have a token, skip login and go straight to dashboard
                 else if (item === 'Dev View') setOverlayMode(adminToken ? 'dev_dashboard' : 'dev_login');
               }}
               style={{
@@ -735,8 +727,9 @@ export default function App() {
                 initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
                 transition={{ delay: 0.15, duration: 0.5, ease: 'easeOut' }} 
                 whileHover={{ opacity: 0.6 }} 
+                // FIX 3: Changed bottom positioning to guarantee it never sinks below 30px from the visible bottom edge
                 style={{
-                  position: 'absolute', bottom: '8vh', fontFamily: 'inherit', fontSize: '1.4rem',
+                  position: 'absolute', bottom: 'max(4vh, 30px)', fontFamily: 'inherit', fontSize: '1.4rem',
                   color: '#FFFFFF', background: 'transparent', border: 'none', cursor: 'pointer',
                   letterSpacing: '0.15em', textTransform: 'lowercase', padding: '1rem',
                   zIndex: 100 
