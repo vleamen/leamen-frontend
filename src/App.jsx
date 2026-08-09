@@ -565,7 +565,7 @@ export default function App() {
           <SphereCluster activePage={activePage} overlayMode={overlayMode} />
           <EffectComposer multisampling={4}>
             <Bloom luminanceThreshold={0.1} mipmapBlur intensity={3.5} />
-            <Noise opacity={0.07} />
+            <Noise opacity={0.06} />
           </EffectComposer>
         </Canvas>
       </div>
