@@ -333,14 +333,13 @@ export default function App() {
       .catch(err => console.error("Failed to load posts:", err));
   }, []);
 
-  // ESCAPE KEY LOGIC (FIXED TO SYNC STATES)
+  // ESCAPE KEY LOGIC 
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') {
         setOverlayMode((prev) => {
           if (prev === 'post_edit') return 'dev_dashboard';
           if (prev !== 'none') {
-            setActivePage('home');
             updateURL('/');
             return 'none';
           }
@@ -505,7 +504,6 @@ export default function App() {
             onMouseEnter={() => overlayMode === 'none' && setActivePage(item.toLowerCase())}
             onClick={() => {
               if (item === 'Home') {
-                setActivePage('home'); // FIXED: Explicitly sync state
                 setHomeWobble(prev => prev + 1);
                 setOverlayMode('none'); 
                 updateURL('/');
@@ -587,7 +585,7 @@ export default function App() {
           <motion.div
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
-            exit={{ opacity: 0, pointerEvents: 'none' }} // FIXED: Instantly unblocks the mouse
+            exit={{ opacity: 0, pointerEvents: 'none' }} 
             transition={{ duration: 0.3, ease: 'easeOut' }}
             style={{
               position: 'absolute', inset: 0, zIndex: 20, 
@@ -654,7 +652,6 @@ export default function App() {
                   <button 
                     onClick={() => {
                       setOverlayMode('none');
-                      setActivePage('home'); // FIXED: Explicitly sync state
                     }}
                     style={{ background: 'transparent', border: 'none', color: '#FFF', fontSize: '1.2rem', cursor: 'pointer', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', letterSpacing: '0.05em' }}
                   >
@@ -823,7 +820,6 @@ export default function App() {
                 <motion.button
                   onClick={() => {
                     setOverlayMode('none');
-                    setActivePage('home'); // FIXED: Explicitly sync state
                     updateURL('/');
                   }} 
                   whileHover={{ opacity: 0.6 }} 
