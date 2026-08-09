@@ -507,18 +507,15 @@ export default function App() {
 
       {/* RIGHT PANEL: 3D Canvas */}
       <div style={{ flex: 1, position: 'absolute', inset: 0, zIndex: 0 }}>
-        <Canvas 
-          camera={{ position: [0, 0, 9], fov: 50 }} 
-          dpr={[1, 2]} // Caps pixel ratio at 2x, stopping Retina screens from over-rendering
-        >
+        <Canvas camera={{ position: [0, 0, 9], fov: 50 }}>
           <Environment preset="city" />
           <ambientLight intensity={0.2} />
           <spotLight position={[10, 10, 10]} intensity={2} color="#ff9000" penumbra={1} />
           <spotLight position={[-10, -10, -10]} intensity={2} color="#00d8ff" penumbra={1} />
           <SphereCluster activePage={activePage} overlayMode={overlayMode} />
-          <EffectComposer disableNormalPass multisampling={0}> {/* Disables heavy anti-aliasing passes */}
-            <Bloom luminanceThreshold={0.1} mipmapBlur intensity={3.5} />
-            <Noise opacity={0.7} />
+          <EffectComposer disableNormalPass>
+            <Bloom luminanceThreshold={0.1} mipmapBlur intensity={4.0} />
+            <Noise opacity={0.07} />
           </EffectComposer>
         </Canvas>
       </div>
