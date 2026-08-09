@@ -6,7 +6,7 @@ import { EffectComposer, Bloom, Noise } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
 // ------------------------------------------------------------------
-// 3D SCENE COMPONENT
+// 3D SCENE COMPONENT (Optimized & Frame-Rate Independent)
 // ------------------------------------------------------------------
 const SphereCluster = ({ activePage, overlayMode }) => {
   const groupRef = useRef();
@@ -56,20 +56,23 @@ const SphereCluster = ({ activePage, overlayMode }) => {
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useFrame((state, delta) => {
+    // Clamp delta to prevent erratic jumps if the tab loses focus
+    const clampedDelta = Math.min(delta, 0.1);
+
     const targetSpeed = overlayMode !== 'none' ? 4.0 : 1.0;
-    speedRef.current = THREE.MathUtils.lerp(speedRef.current, targetSpeed, 0.015);
-    timeRef.current += delta * speedRef.current * 0.4;
+    speedRef.current = THREE.MathUtils.damp(speedRef.current, targetSpeed, 5, clampedDelta);
+    timeRef.current += clampedDelta * speedRef.current * 0.4;
     const t = timeRef.current;
 
     const targetEmissive = activePage === 'home' ? 0.05 : 0.2;
-    sharedMaterial.emissiveIntensity = THREE.MathUtils.lerp(sharedMaterial.emissiveIntensity, targetEmissive, 0.1);
+    sharedMaterial.emissiveIntensity = THREE.MathUtils.damp(sharedMaterial.emissiveIntensity, targetEmissive, 6, clampedDelta);
 
     if (activePage === 'home') {
-      sharedMaterial.emissive.lerp(new THREE.Color("#4a154b"), 0.05); 
+      sharedMaterial.emissive.lerp(new THREE.Color("#4a154b"), clampedDelta * 3); 
     } else {
       const hue = 0.85 + Math.sin(t * 0.5) * 0.25; 
       const prismatic = new THREE.Color().setHSL(hue % 1, 0.5, 0.6); 
-      sharedMaterial.emissive.lerp(prismatic, 0.05);
+      sharedMaterial.emissive.lerp(prismatic, clampedDelta * 3);
     }
 
     let targetX = 0, targetY = 0, targetZ = 0;
@@ -78,24 +81,19 @@ const SphereCluster = ({ activePage, overlayMode }) => {
     else if (activePage === 'music') { targetX = 0.2; targetY = 0.4; } 
     else if (activePage === 'shop') { targetY = 0.8; } 
 
-    rotSpeed.current.x = THREE.MathUtils.lerp(rotSpeed.current.x, targetX, 0.025);
-    rotSpeed.current.y = THREE.MathUtils.lerp(rotSpeed.current.y, targetY, 0.025);
-    rotSpeed.current.z = THREE.MathUtils.lerp(rotSpeed.current.z, targetZ, 0.025);
+    rotSpeed.current.x = THREE.MathUtils.damp(rotSpeed.current.x, targetX, 4, clampedDelta);
+    rotSpeed.current.y = THREE.MathUtils.damp(rotSpeed.current.y, targetY, 4, clampedDelta);
+    rotSpeed.current.z = THREE.MathUtils.damp(rotSpeed.current.z, targetZ, 4, clampedDelta);
 
     if (groupRef.current) {
       if (activePage === 'home' || activePage === 'shop') {
-        let rx = groupRef.current.rotation.x % (Math.PI * 2);
-        let rz = groupRef.current.rotation.z % (Math.PI * 2);
-        if (rx > Math.PI) rx -= Math.PI * 2; else if (rx < -Math.PI) rx += Math.PI * 2;
-        if (rz > Math.PI) rz -= Math.PI * 2; else if (rz < -Math.PI) rz += Math.PI * 2;
-
-        groupRef.current.rotation.x = THREE.MathUtils.lerp(rx, 0, 0.025);
-        groupRef.current.rotation.z = THREE.MathUtils.lerp(rz, 0, 0.025);
+        groupRef.current.rotation.x = THREE.MathUtils.damp(groupRef.current.rotation.x, 0, 4, clampedDelta);
+        groupRef.current.rotation.z = THREE.MathUtils.damp(groupRef.current.rotation.z, 0, 4, clampedDelta);
       } else {
-        groupRef.current.rotation.x += rotSpeed.current.x * delta * speedRef.current;
-        groupRef.current.rotation.z += rotSpeed.current.z * delta * speedRef.current;
+        groupRef.current.rotation.x += rotSpeed.current.x * clampedDelta * speedRef.current;
+        groupRef.current.rotation.z += rotSpeed.current.z * clampedDelta * speedRef.current;
       }
-      groupRef.current.rotation.y += rotSpeed.current.y * delta * speedRef.current;
+      groupRef.current.rotation.y += rotSpeed.current.y * clampedDelta * speedRef.current;
     }
 
     for (let i = 0; i < 27; i++) {
@@ -139,7 +137,8 @@ const SphereCluster = ({ activePage, overlayMode }) => {
         targetPos.set(Math.cos(angle) * r, y, Math.sin(angle) * r);
       }
 
-      currentPositions[i].lerp(targetPos, 0.04);
+      // Frame-rate independent dampening instead of hardcoded lerp steps
+      currentPositions[i].lerp(targetPos, 1 - Math.exp(-6 * clampedDelta));
       dummy.position.copy(currentPositions[i]);
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
