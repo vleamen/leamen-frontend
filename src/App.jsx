@@ -286,7 +286,7 @@ export default function App() {
   const [scrollBounce, setScrollBounce] = useState(0); 
   const lastScrollTime = useRef(0); 
   
-  const API_BASE = 'https://leamen-backend-production.up.railway.app';
+  const API_BASE = '/api';
 
   // --- URL ROUTING LOGIC ---
   const updateURL = (path) => {

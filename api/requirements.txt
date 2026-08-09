@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+resend
+python-dotenv
+libsql-client
+sqlalchemy-libsql
