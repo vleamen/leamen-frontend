@@ -312,22 +312,23 @@ export default function App() {
       }
     };
 
-    // --- DYNAMIC TAB TITLE LOGIC ---
-  useEffect(() => {
-    if (overlayMode === 'contact') {
-      document.title = 'contact';
-    } else if (overlayMode === 'public_gallery' && ['code', 'design', 'music', 'shop'].includes(activePage)) {
-      document.title = activePage;
-    } else {
-      document.title = 'leamen';
-    }
-  }, [activePage, overlayMode]);
-
     handleUrlChange();
 
     window.addEventListener('popstate', handleUrlChange);
     return () => window.removeEventListener('popstate', handleUrlChange);
   }, []);
+
+  // --- DYNAMIC TAB TITLE LOGIC ---
+  useEffect(() => {
+    if (overlayMode === 'contact') {
+      document.title = 'Contact';
+    } else if (overlayMode === 'public_gallery' && ['code', 'design', 'music', 'shop'].includes(activePage)) {
+      document.title = activePage.charAt(0).toUpperCase() + activePage.slice(1);
+    } else {
+      // Defaults back to lowercase leamen for the home page or dev view
+      document.title = 'leamen';
+    }
+  }, [activePage, overlayMode]);
   
   useEffect(() => {
     fetch(`${API_BASE}/posts`)
