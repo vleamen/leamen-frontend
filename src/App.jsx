@@ -733,8 +733,9 @@ export default function App() {
               >
                 
                 {/* PREVIOUS POST ARROW */}
-                {overlayMode === 'public_gallery' && (
+                {(overlayMode === 'public_gallery' && activeGroupPosts.length > 0) && (
                   <motion.button
+                    initial={{ opacity: 0 }} 
                     animate={{ opacity: publicGalleryIndex > 0 ? 0.5 : 0 }}
                     transition={{ duration: 0.8, ease: "easeInOut" }}
                     whileHover={publicGalleryIndex > 0 ? { opacity: 1, scale: 1.1 } : {}}
@@ -764,8 +765,9 @@ export default function App() {
                 </motion.button>
 
                 {/* NEXT POST ARROW */}
-                {overlayMode === 'public_gallery' && (
+                {(overlayMode === 'public_gallery' && activeGroupPosts.length > 0) && (
                   <motion.button
+                    initial={{ opacity: 0 }}
                     animate={{ opacity: publicGalleryIndex < activeGroupPosts.length - 1 ? 0.5 : 0 }}
                     transition={{ duration: 0.8, ease: "easeInOut" }}
                     whileHover={publicGalleryIndex < activeGroupPosts.length - 1 ? { opacity: 1, scale: 1.1 } : {}}
