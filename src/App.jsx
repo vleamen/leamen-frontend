@@ -56,7 +56,6 @@ const SphereCluster = ({ activePage, overlayMode }) => {
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useFrame((state, delta) => {
-    // Clamp delta to prevent erratic jumps if the tab loses focus
     const clampedDelta = Math.min(delta, 0.1);
 
     const targetSpeed = overlayMode !== 'none' ? 4.0 : 1.0;
@@ -137,7 +136,6 @@ const SphereCluster = ({ activePage, overlayMode }) => {
         targetPos.set(Math.cos(angle) * r, y, Math.sin(angle) * r);
       }
 
-      // Frame-rate independent dampening instead of hardcoded lerp steps
       currentPositions[i].lerp(targetPos, 1 - Math.exp(-6 * clampedDelta));
       dummy.position.copy(currentPositions[i]);
       dummy.updateMatrix();
@@ -282,6 +280,33 @@ export default function App() {
   
   const API_BASE = 'https://leamen-backend-production.up.railway.app';
 
+  // --- URL ROUTING LOGIC ---
+  const updateURL = (path) => {
+    if (window.location.pathname !== path) {
+      window.history.pushState({}, '', path);
+    }
+  };
+
+  useEffect(() => {
+    const handleUrlChange = () => {
+      const path = window.location.pathname.replace('/', '').toLowerCase();
+      if (path === 'contact') {
+        setOverlayMode('contact');
+      } else if (['code', 'design', 'music', 'shop'].includes(path)) {
+        setActivePage(path);
+        setOverlayMode('public_gallery');
+      } else {
+        setOverlayMode('none');
+        setActivePage('home');
+      }
+    };
+
+    handleUrlChange();
+
+    window.addEventListener('popstate', handleUrlChange);
+    return () => window.removeEventListener('popstate', handleUrlChange);
+  }, []);
+  
   useEffect(() => {
     fetch(`${API_BASE}/posts`)
       .then(res => res.json())
@@ -294,6 +319,9 @@ export default function App() {
       if (e.key === 'Escape') {
         setOverlayMode((prev) => {
           if (prev === 'post_edit') return 'dev_dashboard';
+          if (prev === 'public_gallery' || prev === 'contact') {
+            updateURL('/');
+          }
           return 'none';
         });
       }
@@ -421,6 +449,7 @@ export default function App() {
     }
   };
 
+  // BASE64 IMAGE ENCODER
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -431,18 +460,19 @@ export default function App() {
       reader.readAsDataURL(file);
     }
   };
+
   const openPublicGallery = (page) => {
-    setActivePage(page.toLowerCase());
+    const lower = page.toLowerCase();
+    setActivePage(lower);
     setPublicGalleryIndex(0); 
     setOverlayMode('public_gallery');
+    updateURL(`/${lower}`);
   };
 
   return (
-    // FIX 1: Swapped 100vh for 100dvh to prevent mobile browsers from hiding the bottom
     <div style={{ width: '100vw', height: '100dvh', display: 'flex', backgroundColor: '#050505', color: '#F5F5F5', fontFamily: 'Palatino Light', margin: 0, overflow: 'hidden', position: 'relative' }}>
       
       {/* LEFT PANEL: Navigation */}
-      {/* FIX 2: Used responsive math min/max so the padding scales down gracefully on small screens without breaking the design */}
       <nav style={{ width: 'min(300px, 80vw)', padding: 'min(3rem, 6vh) min(3rem, 6vw)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '1rem', borderRight: '1px solid #1A1A1A', background: 'rgba(5, 5, 5, 0.2)', backdropFilter: 'blur(10px)' }}>
         <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '1.2rem', textTransform: 'lowercase', letterSpacing: '0.02em', marginBottom: '2rem', color: '#666666' }}>
           leamen
@@ -456,6 +486,7 @@ export default function App() {
               if (item === 'Home') {
                 setHomeWobble(prev => prev + 1);
                 setOverlayMode('none'); 
+                updateURL('/');
               } else {
                 openPublicGallery(item);
               }
@@ -487,8 +518,13 @@ export default function App() {
             <button
               key={item}
               onClick={() => {
-                if (item === 'Contact') setOverlayMode('contact');
-                else if (item === 'Dev View') setOverlayMode(adminToken ? 'dev_dashboard' : 'dev_login');
+                if (item === 'Contact') {
+                  setOverlayMode('contact');
+                  updateURL('/contact');
+                }
+                else if (item === 'Dev View') {
+                  setOverlayMode(adminToken ? 'dev_dashboard' : 'dev_login');
+                }
               }}
               style={{
                 fontFamily: 'inherit', background: 'transparent', border: 'none',
@@ -506,15 +542,19 @@ export default function App() {
 
       {/* RIGHT PANEL: 3D Canvas */}
       <div style={{ flex: 1, position: 'absolute', inset: 0, zIndex: 0 }}>
-        <Canvas camera={{ position: [0, 0, 9], fov: 50 }}>
+        <Canvas 
+          camera={{ position: [0, 0, 9], fov: 50 }} 
+          dpr={[1, 2]}
+          gl={{ powerPreference: "high-performance", antialias: true }}
+        >
           <Environment preset="city" />
           <ambientLight intensity={0.2} />
           <spotLight position={[10, 10, 10]} intensity={2} color="#ff9000" penumbra={1} />
           <spotLight position={[-10, -10, -10]} intensity={2} color="#00d8ff" penumbra={1} />
           <SphereCluster activePage={activePage} overlayMode={overlayMode} />
-          <EffectComposer disableNormalPass>
-            <Bloom luminanceThreshold={0.1} mipmapBlur intensity={4.0} />
-            <Noise opacity={0.07} />
+          <EffectComposer multisampling={4}>
+            <Bloom luminanceThreshold={0.1} mipmapBlur intensity={3.5} />
+            <Noise opacity={0.18} />
           </EffectComposer>
         </Canvas>
       </div>
@@ -753,7 +793,10 @@ export default function App() {
 
                 {/* THE RETURN BUTTON */}
                 <motion.button
-                  onClick={() => setOverlayMode('none')} 
+                  onClick={() => {
+                    setOverlayMode('none');
+                    updateURL('/');
+                  }} 
                   whileHover={{ opacity: 0.6 }} 
                   style={{
                     fontFamily: 'inherit', fontSize: '1.4rem', color: '#FFFFFF', background: 'transparent', 
@@ -784,8 +827,11 @@ export default function App() {
                 )}
 
               </motion.div>
-            )}          </motion.div>
-        )}      </AnimatePresence>
+            )}
+
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
