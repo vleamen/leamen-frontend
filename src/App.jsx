@@ -86,6 +86,17 @@ const SphereCluster = ({ activePage, overlayMode }) => {
 
     if (groupRef.current) {
       if (activePage === 'home' || activePage === 'shop') {
+        // 1. Normalize the rotation to prevent the wild rubber-band spin
+        let rx = groupRef.current.rotation.x % (Math.PI * 2);
+        let rz = groupRef.current.rotation.z % (Math.PI * 2);
+        if (rx > Math.PI) rx -= Math.PI * 2; else if (rx < -Math.PI) rx += Math.PI * 2;
+        if (rz > Math.PI) rz -= Math.PI * 2; else if (rz < -Math.PI) rz += Math.PI * 2;
+
+        // Snap to the normalized angle instantly (visually identical)
+        groupRef.current.rotation.x = rx;
+        groupRef.current.rotation.z = rz;
+
+        // 2. Now smoothly damp to 0 taking the shortest path
         groupRef.current.rotation.x = THREE.MathUtils.damp(groupRef.current.rotation.x, 0, 4, clampedDelta);
         groupRef.current.rotation.z = THREE.MathUtils.damp(groupRef.current.rotation.z, 0, 4, clampedDelta);
       } else {
