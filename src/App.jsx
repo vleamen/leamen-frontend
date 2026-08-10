@@ -176,52 +176,34 @@ const SphereCluster = ({ activePage, overlayMode }) => {
         targetPos.set(x * 1.2, y * 1.2, z * 1.2);
       } 
       else if (activePage === 'design') {
-        // The Tourbillon: 3 concentric, counter-rotating mechanical rings
+        // The Möbius Ribbon: A continuous 3D figure-8 loop
         
-        // 1. Inner Cage (3 spheres) - Rapid oscillation and dynamic tilt
-        if (i < 3) {
-          const angle = (i / 3) * Math.PI * 2 + t * 4.0;
-          const radius = 0.45;
-          targetPos.set(
-            Math.cos(angle) * radius,
-            Math.cos(angle) * radius * Math.sin(t * 3), 
-            Math.sin(angle) * radius
-          );
-        } 
-        // 2. Middle Gear (8 spheres) - Slow, flat Y-axis orbit
-        else if (i < 11) {
-          const index = i - 3;
-          const angle = (index / 8) * Math.PI * 2 + t * 1.2;
-          const radius = 1.4;
-          targetPos.set(
-            Math.cos(angle) * radius,
-            0,
-            Math.sin(angle) * radius
-          );
-        } 
-        // 3. Outer Ring (16 spheres) - 45-degree tilted plane, counter-rotating
-        else {
-          const index = i - 11;
-          const angle = (index / 16) * Math.PI * 2 - t * 0.8; 
-          const radius = 2.4;
-          
-          // Calculate standard flat circle first
-          const x = Math.cos(angle) * radius;
-          const z = Math.sin(angle) * radius;
-          
-          // Apply a 45-degree (PI/4) tilt across the X-axis
-          const tilt = Math.PI / 4;
-          targetPos.set(
-            x,
-            z * Math.sin(tilt),
-            z * Math.cos(tilt)
-          );
-        }
+        // Distribute the 27 spheres evenly across a full 360-degree circle (PI * 2), 
+        // and add time (t * 0.6) so they constantly flow along the track.
+        const angle = (i / 27) * Math.PI * 2 + (t * 0.6); 
+        
+        // X creates the wide left-to-right span
+        const x = Math.sin(angle) * 2.6;
+        
+        // Y uses double the angle (angle * 2) to force the ribbon to dip up and down 
+        // twice per rotation, creating the signature twisting saddle shape
+        const y = Math.sin(angle * 2) * 1.2; 
+        
+        // Z gives the loop physical depth so it crosses over itself in 3D space
+        const z = Math.cos(angle) * 1.4;
+        
+        targetPos.set(x, y, z);
       }
       else if (activePage === 'music') {
         const row = Math.floor(i / 9); const col = i % 9; 
-        const x = (col - 4) * 0.7; const z = (row - 1) * 0.7;
-        const y = Math.sin(x * 1.5 + row * 0.8 - t * 3.5) * 1.2;
+        
+        // 1. Spacing: Changed 0.7 to 0.9 to stretch the grid wider
+        const x = (col - 4) * 0.9; 
+        const z = (row - 1) * 0.9;
+        
+        // 2. Wave Shape: Lowered x * 1.5 to x * 0.8 to stretch the wave horizontally
+        const y = Math.sin(x * 0.8 + row * 0.5 - t * 3.5) * 1.2;
+        
         targetPos.set(x, y, z);
       }
       else if (activePage === 'shop') {
