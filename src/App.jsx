@@ -216,7 +216,7 @@ const PostCard = ({ post, onClick, compact }) => {
                  <span style={{ fontSize: '1.5rem' }}>▶</span> <span>Video Embed</span>
                </div>
              ) : (
-               <img src={mediaUrl} alt="post" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+               <img src={mediaUrl} alt="post" style={{ height: '100%', width: 'auto', maxWidth: '100%', objectFit: 'contain' }} />
              )}
            </div>
          )}
@@ -241,7 +241,7 @@ const PostCard = ({ post, onClick, compact }) => {
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
-        <span style={{ fontWeight: 'normal', fontSize: '4rem', color: '#FFF', lineHeight: 1 }}>{post.title || 'untitled'}</span>
+        <span style={{ fontWeight: 'normal', fontSize: 'clamp(2rem, 5vw, 4rem)', color: '#FFF', lineHeight: 1 }}>{post.title || 'untitled'}</span>
         <span style={{ fontSize: '1.2rem', color: '#888', paddingBottom: '0.5rem' }}>{post.date}</span>
       </div>
       
@@ -251,12 +251,12 @@ const PostCard = ({ post, onClick, compact }) => {
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem' }}>
             {links.map((l, i) => (
               <div key={i} style={{ padding: '6px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '9999px', width: 'fit-content' }}>
-                <div style={{ background: '#FFF', borderRadius: '9999px', padding: '1.2rem 3rem', cursor: 'pointer', isolation: 'isolate' }}>
+                <div style={{ background: '#FFF', borderRadius: '9999px', padding: '1.2rem 3rem', mixBlendMode: 'screen', transform: 'translateZ(0)', cursor: 'pointer' }}>
                   <a 
                     href={l.url} target="_blank" rel="noreferrer" 
                     onClick={e => e.stopPropagation()} 
                     onPointerDown={(e) => e.stopPropagation()}
-                    style={{ display: 'inline-block', color: '#000', mixBlendMode: 'destination-out', textDecoration: 'none', fontSize: '1.4rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                    style={{ display: 'inline-block', color: '#000', textDecoration: 'none', fontSize: '1.4rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   >
                     {l.text || 'visit link ↗'}
                   </a>
@@ -276,7 +276,7 @@ const PostCard = ({ post, onClick, compact }) => {
                     allowFullScreen
                   ></iframe>
                 ) : (
-                  <img src={mediaUrl} alt="post" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                  <img src={mediaUrl} alt="post" style={{ height: '100%', width: 'auto', maxWidth: '100%', objectFit: 'contain' }} />
                 )}
               </div>
             )}
@@ -298,12 +298,12 @@ const PostCard = ({ post, onClick, compact }) => {
       {(!isLinkOnly && links.length > 0) && (
         <div style={{ position: 'absolute', bottom: '1rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '1rem', width: '100%', flexWrap: 'wrap' }}>
           {links.map((l, i) => (
-            <div key={i} style={{ background: '#FFF', borderRadius: '9999px', padding: '0.8rem 2rem', cursor: 'pointer', isolation: 'isolate' }}>
+            <div key={i} style={{ background: '#FFF', borderRadius: '9999px', padding: '0.8rem 2rem', mixBlendMode: 'screen', transform: 'translateZ(0)', cursor: 'pointer' }}>
               <a 
                 href={l.url} target="_blank" rel="noreferrer" 
                 onClick={e => e.stopPropagation()} 
                 onPointerDown={(e) => e.stopPropagation()}
-                style={{ display: 'inline-block', color: '#000', mixBlendMode: 'destination-out', textDecoration: 'none', fontSize: '1rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                style={{ display: 'inline-block', color: '#000', textDecoration: 'none', fontSize: '1rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               >
                 {l.text || 'visit link ↗'}
               </a>
@@ -625,8 +625,9 @@ export default function App() {
             setOverlayMode('none'); 
             updateURL('/');
           }}
-          initial={{ scale: 1 }}
+          initial={{ scale: 1, textShadow: '0 0 0px rgba(255,255,255,0)' }}
           animate={homeWobble > 0 ? { scale: [1, 1.05, 0.98, 1.02, 1] } : {}}
+          whileHover={{ textShadow: '0 0 20px rgba(255,255,255,0.8)' }}
           transition={{ duration: 0.6, ease: "easeInOut" }}
           style={{ 
             fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', 
@@ -634,7 +635,7 @@ export default function App() {
             textTransform: 'lowercase', 
             letterSpacing: '0.02em', 
             margin: '0 0 2rem 0', 
-            color: '#666666',
+            color: '#FFFFFF',
             cursor: 'pointer',
             originX: 0, originY: 0.5
           }}
@@ -649,7 +650,7 @@ export default function App() {
             onClick={() => openPublicGallery(item)}
             style={{
               fontFamily: 'inherit', background: 'transparent', border: 'none',
-              color: activePage === item.toLowerCase() ? '#FFFFFF' : '#444444',
+              color: activePage === item.toLowerCase() ? '#FFFFFF' : '#888888',
               textAlign: 'left', fontSize: '3rem', fontWeight: 'light', cursor: 'pointer',
               padding: 0, textShadow: activePage === item.toLowerCase() ? '0 0 20px rgba(255,255,255,0.5)' : 'none',
               display: 'inline-flex'
@@ -901,7 +902,7 @@ export default function App() {
                           title="video preview"
                         ></iframe>
                       ) : (
-                        <img src={editingPost.image} alt="post preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                        <img src={editingPost.image} alt="post preview" style={{ height: '100%', width: 'auto', maxWidth: '100%', objectFit: 'contain' }} />
                       )}
                     </div>
                   )}
