@@ -251,12 +251,12 @@ const PostCard = ({ post, onClick, compact }) => {
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem' }}>
             {links.map((l, i) => (
               <div key={i} style={{ padding: '6px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '9999px', width: 'fit-content' }}>
-                <div style={{ background: '#FFF', borderRadius: '9999px', padding: '1.2rem 3rem', mixBlendMode: 'screen', transform: 'translateZ(0)', cursor: 'pointer' }}>
+                <div style={{ background: '#FFF', borderRadius: '9999px', padding: '1.2rem 3rem', cursor: 'pointer', isolation: 'isolate' }}>
                   <a 
                     href={l.url} target="_blank" rel="noreferrer" 
                     onClick={e => e.stopPropagation()} 
                     onPointerDown={(e) => e.stopPropagation()}
-                    style={{ display: 'inline-block', color: '#000', textDecoration: 'none', fontSize: '1.4rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                    style={{ display: 'inline-block', color: '#000', mixBlendMode: 'destination-out', textDecoration: 'none', fontSize: '1.4rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   >
                     {l.text || 'visit link ↗'}
                   </a>
@@ -298,12 +298,12 @@ const PostCard = ({ post, onClick, compact }) => {
       {(!isLinkOnly && links.length > 0) && (
         <div style={{ position: 'absolute', bottom: '1rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '1rem', width: '100%', flexWrap: 'wrap' }}>
           {links.map((l, i) => (
-            <div key={i} style={{ background: '#FFF', borderRadius: '9999px', padding: '0.8rem 2rem', mixBlendMode: 'screen', transform: 'translateZ(0)', cursor: 'pointer' }}>
+            <div key={i} style={{ background: '#FFF', borderRadius: '9999px', padding: '0.8rem 2rem', cursor: 'pointer', isolation: 'isolate' }}>
               <a 
                 href={l.url} target="_blank" rel="noreferrer" 
                 onClick={e => e.stopPropagation()} 
                 onPointerDown={(e) => e.stopPropagation()}
-                style={{ display: 'inline-block', color: '#000', textDecoration: 'none', fontSize: '1rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                style={{ display: 'inline-block', color: '#000', mixBlendMode: 'destination-out', textDecoration: 'none', fontSize: '1rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               >
                 {l.text || 'visit link ↗'}
               </a>
