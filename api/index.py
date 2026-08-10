@@ -18,7 +18,13 @@ ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 SECRET_TOKEN = os.getenv("SECRET_TOKEN")
 resend.api_key = os.getenv("RESEND_API_KEY")
 
-TURSO_URL = os.getenv("TURSO_URL", "").rstrip("/")
+# Fix: Dynamically convert libsql:// to https:// for the httpx client
+_raw_url = os.getenv("TURSO_URL", "").rstrip("/")
+if _raw_url.startswith("libsql://"):
+    TURSO_URL = _raw_url.replace("libsql://", "https://")
+else:
+    TURSO_URL = _raw_url
+
 TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN", "")
 
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
@@ -39,7 +45,6 @@ def execute_turso(sql: str, args: list = None):
         "Content-Type": "application/json"
     }
     
-    # Format arguments for Turso's pipeline protocol
     formatted_args = []
     if args:
         for arg in args:
@@ -77,9 +82,8 @@ def execute_turso(sql: str, args: list = None):
         
         return result_set.get("response", {}).get("result", {})
 
-# Initialize database table on startup/cold-start
-@app.on_event("startup")
-def startup_db():
+# Fix: Run table initialization synchronously so Vercel executes it on cold start
+def init_db():
     create_table_sql = """
     CREATE TABLE IF NOT EXISTS posts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -96,6 +100,8 @@ def startup_db():
         execute_turso(create_table_sql)
     except Exception as e:
         print("Table init warning:", e)
+
+init_db()
 
 # --- PYDANTIC MODELS ---
 class PostBase(BaseModel):
