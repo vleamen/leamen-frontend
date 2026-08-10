@@ -277,21 +277,30 @@ const PostCard = ({ post, onClick, compact }) => {
       <div style={{ flex: 1, display: 'flex', gap: '3rem', minHeight: 0, paddingBottom: (!isLinkOnly && links.length > 0) ? '4rem' : '0' }}>
         
         {isLinkOnly ? (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem' }}>
-            {links.map((l, i) => (
-              <div key={i} style={{ padding: '6px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '9999px', width: 'fit-content' }}>
-                <div style={{ background: '#FFF', borderRadius: '9999px', cursor: 'pointer', isolation: 'isolate' }}>
-                  <a
-                    href={l.url} target="_blank" rel="noreferrer"
-                    onClick={e => e.stopPropagation()}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    style={{ display: 'block', padding: '1.2rem 3rem', color: '#000', mixBlendMode: 'destination-out', textDecoration: 'none', fontSize: '1.4rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                  >
-                    {l.text || 'visit link ↗'}
-                  </a>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            {/* NEW INNER WRAPPER forces all children to match the widest child's width */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: 'max-content' }}>
+              {links.map((l, i) => (
+                <div key={i} style={{ padding: '6px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '9999px', width: '100%', boxSizing: 'border-box' }}>
+                  <div style={{ background: '#FFF', borderRadius: '9999px', cursor: 'pointer', isolation: 'isolate' }}>
+                    <a 
+                      href={l.url} target="_blank" rel="noreferrer" 
+                      onClick={e => e.stopPropagation()} 
+                      onPointerDown={(e) => e.stopPropagation()}
+                      style={{ 
+                        display: 'block', padding: '1.2rem 3rem', color: '#000', 
+                        mixBlendMode: 'destination-out', textDecoration: 'none', 
+                        fontSize: '1.4rem', fontWeight: 'bold', 
+                        fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', 
+                        textAlign: 'center' // Added to keep the text perfectly centered in the stretched buttons
+                      }}
+                    >
+                      {l.text || 'visit link ↗'}
+                    </a>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         ) : (
           <>
