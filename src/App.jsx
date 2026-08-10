@@ -489,6 +489,18 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
 
+  // HIDDEN ADMIN SHORTCUT (Cmd/Ctrl + Shift + L)
+  useEffect(() => {
+    const handleAdminShortcut = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'l') {
+        e.preventDefault(); // Prevents the browser from triggering default shortcuts
+        setOverlayMode(adminToken ? 'dev_dashboard' : 'dev_login');
+      }
+    };
+    window.addEventListener('keydown', handleAdminShortcut);
+    return () => window.removeEventListener('keydown', handleAdminShortcut);
+  }, [adminToken]);
+
   const inputStyle = {
     width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255, 255, 255, 0.3)',
     borderRadius: '12px', padding: '1rem', color: '#FFF', fontFamily: 'inherit',
@@ -730,16 +742,13 @@ export default function App() {
         ))}
 
         <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {['Contact', 'Dev View'].map((item) => (
+          {['Contact'].map((item) => (
             <button
               key={item}
               onClick={() => {
                 if (item === 'Contact') {
                   setOverlayMode('contact');
                   updateURL('/contact');
-                }
-                else if (item === 'Dev View') {
-                  setOverlayMode(adminToken ? 'dev_dashboard' : 'dev_login');
                 }
               }}
               style={{
