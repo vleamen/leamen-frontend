@@ -5,6 +5,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { EffectComposer, Bloom, Noise } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
+// --- HELPER: Parse links from the DB or fallback to old single-link format ---
+const parseLinks = (post) => {
+  if (!post.link) return [];
+  try {
+    const parsed = JSON.parse(post.link);
+    if (Array.isArray(parsed)) return parsed;
+  } catch (e) {
+    // Fallback for posts created before the multi-link update
+    return [{ url: post.link, text: post.linkText || 'visit link ↗' }];
+  }
+  return [];
+};
+
 // ------------------------------------------------------------------
 // 3D SCENE COMPONENT (Optimized & Frame-Rate Independent)
 // ------------------------------------------------------------------
@@ -164,7 +177,8 @@ const SphereCluster = ({ activePage, overlayMode }) => {
 // REUSABLE POST CARD COMPONENT
 // ------------------------------------------------------------------
 const PostCard = ({ post, onClick, compact }) => {
-  const isLinkOnly = !post.image && !post.description && post.link;
+  const links = parseLinks(post);
+  const isLinkOnly = !post.image && !post.description && links.length > 0;
 
   if (compact) {
     return (
@@ -203,22 +217,24 @@ const PostCard = ({ post, onClick, compact }) => {
         <span style={{ fontSize: '1.2rem', color: '#888', paddingBottom: '0.5rem' }}>{post.date}</span>
       </div>
       
-      <div style={{ flex: 1, display: 'flex', gap: '3rem', minHeight: 0, paddingBottom: (!isLinkOnly && post.link) ? '4rem' : '0' }}>
+      <div style={{ flex: 1, display: 'flex', gap: '3rem', minHeight: 0, paddingBottom: (!isLinkOnly && links.length > 0) ? '4rem' : '0' }}>
         
         {isLinkOnly ? (
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ padding: '6px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '9999px' }}>
-              <div style={{ background: '#FFF', borderRadius: '9999px', padding: '1.2rem 3rem', mixBlendMode: 'screen', cursor: 'pointer' }}>
-                <a 
-                  href={post.link} target="_blank" rel="noreferrer" 
-                  onClick={e => e.stopPropagation()} 
-                  onPointerDown={(e) => e.stopPropagation()}
-                  style={{ display: 'inline-block', color: '#000', textDecoration: 'none', fontSize: '1.4rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-                >
-                  {post.linkText || 'visit link ↗'}
-                </a>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem' }}>
+            {links.map((l, i) => (
+              <div key={i} style={{ padding: '6px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '9999px', width: 'fit-content' }}>
+                <div style={{ background: '#FFF', borderRadius: '9999px', padding: '1.2rem 3rem', mixBlendMode: 'screen', cursor: 'pointer' }}>
+                  <a 
+                    href={l.url} target="_blank" rel="noreferrer" 
+                    onClick={e => e.stopPropagation()} 
+                    onPointerDown={(e) => e.stopPropagation()}
+                    style={{ display: 'inline-block', color: '#000', textDecoration: 'none', fontSize: '1.4rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                  >
+                    {l.text || 'visit link ↗'}
+                  </a>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         ) : (
           <>
@@ -241,23 +257,27 @@ const PostCard = ({ post, onClick, compact }) => {
         )}
       </div>
 
-      {(!isLinkOnly && post.link) && (
-        <div style={{ position: 'absolute', bottom: '1rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', justifyContent: 'center', width: '100%' }}>
-          <div style={{ background: '#FFF', borderRadius: '9999px', padding: '0.8rem 2rem', mixBlendMode: 'screen', cursor: 'pointer' }}>
-            <a 
-              href={post.link} target="_blank" rel="noreferrer" 
-              onClick={e => e.stopPropagation()} 
-              onPointerDown={(e) => e.stopPropagation()}
-              style={{ display: 'inline-block', color: '#000', textDecoration: 'none', fontSize: '1rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
-            >
-              {post.linkText || 'visit link ↗'}
-            </a>
-          </div>
+      {/* HORIZONTAL LINKS (For Standard Cards) */}
+      {(!isLinkOnly && links.length > 0) && (
+        <div style={{ position: 'absolute', bottom: '1rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '1rem', width: '100%', flexWrap: 'wrap' }}>
+          {links.map((l, i) => (
+            <div key={i} style={{ background: '#FFF', borderRadius: '9999px', padding: '0.8rem 2rem', mixBlendMode: 'screen', cursor: 'pointer' }}>
+              <a 
+                href={l.url} target="_blank" rel="noreferrer" 
+                onClick={e => e.stopPropagation()} 
+                onPointerDown={(e) => e.stopPropagation()}
+                style={{ display: 'inline-block', color: '#000', textDecoration: 'none', fontSize: '1rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+              >
+                {l.text || 'visit link ↗'}
+              </a>
+            </div>
+          ))}
         </div>
       )}
     </div>
   );
 };
+
 
 // ------------------------------------------------------------------
 // MAIN APP COMPONENT
@@ -279,9 +299,9 @@ export default function App() {
   const [adminToken, setAdminToken] = useState(null); 
 
   const [posts, setPosts] = useState([]);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(true);
   const [editingPost, setEditingPost] = useState(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [isLoadingPosts, setIsLoadingPosts] = useState(true);
 
   const [publicGalleryIndex, setPublicGalleryIndex] = useState(0);
   const [scrollBounce, setScrollBounce] = useState(0); 
@@ -432,7 +452,7 @@ export default function App() {
   };
 
   const handleCreateNewPost = () => {
-    setEditingPost({ title: '', date: '', group: '', image: '', description: '', link: '', linkText: '' });
+    setEditingPost({ title: '', date: '', group: '', image: '', description: '', links: [] });
     setOverlayMode('post_edit');
   };
 
@@ -441,6 +461,19 @@ export default function App() {
     const method = isNew ? 'POST' : 'PUT';
     const endpoint = isNew ? `${API_BASE}/posts` : `${API_BASE}/posts/${editingPost.id}`;
 
+    // Clean up empty links and stringify before saving to db
+    const cleanedLinks = (editingPost.links || []).filter(l => l.url && l.url.trim() !== '');
+    
+    const payload = {
+      title: editingPost.title,
+      date: editingPost.date,
+      group: editingPost.group,
+      image: editingPost.image,
+      description: editingPost.description,
+      link: JSON.stringify(cleanedLinks), // Store as JSON array string
+      linkText: '' // Blanking out old linkText since we use JSON now
+    };
+
     try {
       const response = await fetch(endpoint, {
         method: method,
@@ -448,7 +481,7 @@ export default function App() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${adminToken}` 
         },
-        body: JSON.stringify(editingPost)
+        body: JSON.stringify(payload)
       });
 
       if (response.ok) {
@@ -457,7 +490,6 @@ export default function App() {
         setEditingPost(null);
         setOverlayMode('dev_dashboard');
       } else {
-        // THIS WILL REVEAL THE INVISIBLE ERROR
         const errorData = await response.json();
         alert(`Backend Error: ${errorData.detail || JSON.stringify(errorData)}`);
       }
@@ -485,7 +517,6 @@ export default function App() {
           setEditingPost(null);
           setOverlayMode('dev_dashboard');
         } else {
-          // THIS WILL REVEAL THE INVISIBLE ERROR
           const errorData = await response.json();
           alert(`Delete Error: ${errorData.detail || JSON.stringify(errorData)}`);
         }
@@ -506,7 +537,7 @@ export default function App() {
     formData.append('upload_preset', 'leamen_portfolio'); 
 
     try {
-      const response = await fetch('https://api.cloudinary.com/v1_1/cwl2kjkf/image/upload', {
+      const response = await fetch('https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload', {
         method: 'POST',
         body: formData
       });
@@ -536,7 +567,6 @@ export default function App() {
   return (
     <div style={{ width: '100vw', height: '100dvh', display: 'flex', backgroundColor: '#050505', color: '#F5F5F5', fontFamily: 'Palatino Light', margin: 0, overflow: 'hidden', position: 'relative' }}>
       
-      {/* LEFT PANEL: Navigation */}
       {/* LEFT PANEL: Navigation */}
       <nav style={{ width: 'min(300px, 80vw)', padding: 'min(3rem, 6vh) min(3rem, 6vw)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '1rem', borderRight: '1px solid #1A1A1A', background: 'rgba(5, 5, 5, 0.2)', backdropFilter: 'blur(10px)' }}>
         
@@ -623,7 +653,7 @@ export default function App() {
           <SphereCluster activePage={activePage} overlayMode={overlayMode} />
           <EffectComposer multisampling={4}>
             <Bloom luminanceThreshold={0.1} mipmapBlur intensity={3.5} />
-            <Noise opacity={0.07} />
+            <Noise opacity={0.06} />
           </EffectComposer>
         </Canvas>
       </div>
@@ -719,7 +749,10 @@ export default function App() {
                   </div>
 
                   {sortedPosts.map(post => (
-                    <PostCard key={post.id} post={post} onClick={() => { setEditingPost(post); setOverlayMode('post_edit'); }} compact />
+                    <PostCard key={post.id} post={post} onClick={() => { 
+                      setEditingPost({ ...post, links: parseLinks(post) }); 
+                      setOverlayMode('post_edit'); 
+                    }} compact />
                   ))}
                 </div>
               </motion.div>
@@ -751,7 +784,6 @@ export default function App() {
                   <option value="shop">Shop</option>
                 </select>
 
-                {/* UPDATED IMAGE UPLOAD AND PREVIEW WITH REMOVE BUTTON */}
                 <div style={{ ...inputStyle, padding: '0.5rem 1rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                     <label style={{ fontSize: '0.9rem', color: isUploadingImage ? '#FFF' : '#888' }}>
@@ -788,8 +820,55 @@ export default function App() {
                 </div>
 
                 <textarea placeholder="Description..." rows={4} style={{...inputStyle, resize: 'none'}} value={editingPost.description} onChange={e => setEditingPost({...editingPost, description: e.target.value})} />
-                <input type="text" placeholder="Link URL (e.g. https://github.com)" style={inputStyle} value={editingPost.link} onChange={e => setEditingPost({...editingPost, link: e.target.value})} />
-                <input type="text" placeholder="Link Text (e.g. View Source)" style={inputStyle} value={editingPost.linkText} onChange={e => setEditingPost({...editingPost, linkText: e.target.value})} />
+                
+                {/* DYNAMIC LINKS EDITOR */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+                  <label style={{ fontSize: '0.9rem', color: '#888' }}>Links (Max 5)</label>
+                  {(editingPost.links || []).map((lnk, idx) => (
+                    <div key={idx} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <input 
+                        type="text" placeholder="URL (https://...)" 
+                        style={{...inputStyle, marginBottom: 0, flex: 2}} 
+                        value={lnk.url} 
+                        onChange={e => {
+                          const newLinks = [...editingPost.links];
+                          newLinks[idx].url = e.target.value;
+                          setEditingPost({...editingPost, links: newLinks});
+                        }} 
+                      />
+                      <input 
+                        type="text" placeholder="Text (e.g. GitHub)" 
+                        style={{...inputStyle, marginBottom: 0, flex: 1}} 
+                        value={lnk.text} 
+                        onChange={e => {
+                          const newLinks = [...editingPost.links];
+                          newLinks[idx].text = e.target.value;
+                          setEditingPost({...editingPost, links: newLinks});
+                        }} 
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          const newLinks = editingPost.links.filter((_, i) => i !== idx);
+                          setEditingPost({...editingPost, links: newLinks});
+                        }} 
+                        style={{ background: 'transparent', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '0 0.5rem', fontSize: '1.2rem' }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                  
+                  {(editingPost.links || []).length < 5 && (
+                    <button 
+                      type="button" 
+                      onClick={() => setEditingPost({...editingPost, links: [...(editingPost.links || []), {url: '', text: ''}]})} 
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.2)', color: '#FFF', padding: '0.8rem', borderRadius: '12px', cursor: 'pointer', fontSize: '0.9rem', marginTop: '0.5rem' }}
+                    >
+                      + Add Link
+                    </button>
+                  )}
+                </div>
 
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                   <button onClick={handleDeletePost} style={{ flex: 1, padding: '1rem', background: 'transparent', border: '1px solid #ff4444', color: '#ff4444', borderRadius: '12px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1.1rem' }}>Delete</button>
@@ -884,7 +963,7 @@ export default function App() {
                   <motion.button
                     initial={{ opacity: 0 }} 
                     animate={{ opacity: publicGalleryIndex > 0 ? 0.5 : 0 }}
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
                     whileHover={publicGalleryIndex > 0 ? { opacity: 1, scale: 1.1 } : {}}
                     onClick={() => publicGalleryIndex > 0 && setPublicGalleryIndex(p => p - 1)}
                     style={{
@@ -919,7 +998,7 @@ export default function App() {
                   <motion.button
                     initial={{ opacity: 0 }}
                     animate={{ opacity: publicGalleryIndex < activeGroupPosts.length - 1 ? 0.5 : 0 }}
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
                     whileHover={publicGalleryIndex < activeGroupPosts.length - 1 ? { opacity: 1, scale: 1.1 } : {}}
                     onClick={() => publicGalleryIndex < activeGroupPosts.length - 1 && setPublicGalleryIndex(p => p + 1)}
                     style={{
