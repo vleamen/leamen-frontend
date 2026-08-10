@@ -280,12 +280,12 @@ const PostCard = ({ post, onClick, compact }) => {
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem' }}>
             {links.map((l, i) => (
               <div key={i} style={{ padding: '6px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '9999px', width: 'fit-content' }}>
-                <div style={{ background: '#FFF', borderRadius: '9999px', padding: '1.2rem 3rem', mixBlendMode: 'screen', transform: 'translateZ(0)', cursor: 'pointer' }}>
-                  <a 
-                    href={l.url} target="_blank" rel="noreferrer" 
-                    onClick={e => e.stopPropagation()} 
+                <div style={{ background: '#FFF', borderRadius: '9999px', cursor: 'pointer', isolation: 'isolate' }}>
+                  <a
+                    href={l.url} target="_blank" rel="noreferrer"
+                    onClick={e => e.stopPropagation()}
                     onPointerDown={(e) => e.stopPropagation()}
-                    style={{ display: 'inline-block', color: '#000', textDecoration: 'none', fontSize: '1.4rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                    style={{ display: 'block', padding: '1.2rem 3rem', color: '#000', mixBlendMode: 'destination-out', textDecoration: 'none', fontSize: '1.4rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                   >
                     {l.text || 'visit link ↗'}
                   </a>
@@ -327,12 +327,12 @@ const PostCard = ({ post, onClick, compact }) => {
       {(!isLinkOnly && links.length > 0) && (
         <div style={{ position: 'absolute', bottom: '1rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '1rem', width: '100%', flexWrap: 'wrap' }}>
           {links.map((l, i) => (
-            <div key={i} style={{ background: '#FFF', borderRadius: '9999px', padding: '0.8rem 2rem', mixBlendMode: 'screen', transform: 'translateZ(0)', cursor: 'pointer' }}>
-              <a 
-                href={l.url} target="_blank" rel="noreferrer" 
-                onClick={e => e.stopPropagation()} 
+            <div key={i} style={{ background: '#FFF', borderRadius: '9999px', cursor: 'pointer', isolation: 'isolate' }}>
+              <a
+                href={l.url} target="_blank" rel="noreferrer"
+                onClick={e => e.stopPropagation()}
                 onPointerDown={(e) => e.stopPropagation()}
-                style={{ display: 'inline-block', color: '#000', textDecoration: 'none', fontSize: '1rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                style={{ display: 'block', padding: '0.8rem 2rem', color: '#000', mixBlendMode: 'destination-out', textDecoration: 'none', fontSize: '1rem', fontWeight: 'bold', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
               >
                 {l.text || 'visit link ↗'}
               </a>
@@ -767,11 +767,11 @@ export default function App() {
                 <input type="email" placeholder="email" required style={inputStyle} value={contactEmail} onChange={e => setContactEmail(e.target.value)} />
                 <input type="text" placeholder="subject" required style={inputStyle} value={contactSubject} onChange={e => setContactSubject(e.target.value)} />
                 <textarea placeholder="message" required rows={5} style={{...inputStyle, resize: 'none'}} value={contactMessage} onChange={e => setContactMessage(e.target.value)} />
-                <div style={{ background: '#FFF', borderRadius: '12px', padding: '1rem', cursor: isSending ? 'default' : 'pointer', textAlign: 'center', mixBlendMode: 'screen' }}>
-                  <button 
-                    type="submit" 
+                <div style={{ background: '#FFF', borderRadius: '12px', cursor: isSending ? 'default' : 'pointer', textAlign: 'center', mixBlendMode: 'screen' }}>
+                  <button
+                    type="submit"
                     disabled={isSending}
-                    style={{ background: 'transparent', border: 'none', color: '#000', fontSize: '1.2rem', fontFamily: 'inherit', cursor: isSending ? 'default' : 'pointer', width: '100%', fontWeight: 'bold' }}
+                    style={{ background: 'transparent', border: 'none', padding: '1rem', color: '#000', fontSize: '1.2rem', fontFamily: 'inherit', cursor: isSending ? 'default' : 'pointer', width: '100%', fontWeight: 'bold' }}
                   >
                     {isSending ? 'sending...' : sendSuccess ? 'sent!' : 'send'}
                   </button>
