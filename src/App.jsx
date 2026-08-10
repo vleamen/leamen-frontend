@@ -176,27 +176,52 @@ const SphereCluster = ({ activePage, overlayMode }) => {
         targetPos.set(x * 1.2, y * 1.2, z * 1.2);
       } 
       else if (activePage === 'design') {
-        // Golden Ratio (Phyllotaxis) Sphere - Classic, harmonious proportions
-        const y = 1 - (i / 26) * 2; 
-        const radius = Math.sqrt(1 - y * y) * 2.2;
-        const theta = 2.39996 * i + t * 0.8; // 2.39996 is the golden angle in radians
+        // The Tourbillon: 3 concentric, counter-rotating mechanical rings
         
-        targetPos.set(
-          Math.cos(theta) * radius,
-          y * 2.2, // Elongated slightly for elegance
-          Math.sin(theta) * radius
-        );
+        // 1. Inner Cage (3 spheres) - Rapid oscillation and dynamic tilt
+        if (i < 3) {
+          const angle = (i / 3) * Math.PI * 2 + t * 4.0;
+          const radius = 0.45;
+          targetPos.set(
+            Math.cos(angle) * radius,
+            Math.cos(angle) * radius * Math.sin(t * 3), 
+            Math.sin(angle) * radius
+          );
+        } 
+        // 2. Middle Gear (8 spheres) - Slow, flat Y-axis orbit
+        else if (i < 11) {
+          const index = i - 3;
+          const angle = (index / 8) * Math.PI * 2 + t * 1.2;
+          const radius = 1.4;
+          targetPos.set(
+            Math.cos(angle) * radius,
+            0,
+            Math.sin(angle) * radius
+          );
+        } 
+        // 3. Outer Ring (16 spheres) - 45-degree tilted plane, counter-rotating
+        else {
+          const index = i - 11;
+          const angle = (index / 16) * Math.PI * 2 - t * 0.8; 
+          const radius = 2.4;
+          
+          // Calculate standard flat circle first
+          const x = Math.cos(angle) * radius;
+          const z = Math.sin(angle) * radius;
+          
+          // Apply a 45-degree (PI/4) tilt across the X-axis
+          const tilt = Math.PI / 4;
+          targetPos.set(
+            x,
+            z * Math.sin(tilt),
+            z * Math.cos(tilt)
+          );
+        }
       }
       else if (activePage === 'music') {
-        const row = Math.floor(i / 9); 
-        const col = i % 9; 
-        const x = (col - 4) * 0.8; 
-        const z = (row - 1) * 0.8;
-        
-        // Lowered the spatial frequencies (0.6 and 0.5) to stretch the wave out smoothly,
-        // and introduced Z-axis oscillation for a breathing, liquid-like roll.
-        const y = Math.sin(x * 0.6 - t * 2.5) * 0.8 + Math.cos(z * 0.5 - t * 1.5) * 0.4;
-        
+        const row = Math.floor(i / 9); const col = i % 9; 
+        const x = (col - 4) * 0.7; const z = (row - 1) * 0.7;
+        const y = Math.sin(x * 1.5 + row * 0.8 - t * 3.5) * 1.2;
         targetPos.set(x, y, z);
       }
       else if (activePage === 'shop') {
