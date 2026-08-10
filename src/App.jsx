@@ -579,9 +579,10 @@ export default function App() {
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', 'leamen_portfolio'); 
+    formData.append('upload_preset', 'leamen_portfolio'); // Must match your Cloudinary preset exactly
 
     try {
+      // Remember to put your actual cloud name back in here!
       const response = await fetch('https://api.cloudinary.com/v1_1/cwl2kjkf/image/upload', {
         method: 'POST',
         body: formData
@@ -592,10 +593,11 @@ export default function App() {
       if (data.secure_url) {
         setEditingPost({ ...editingPost, image: data.secure_url });
       } else {
-        console.error("Upload failed:", data.error.message);
+        // THIS WILL REVEAL THE INVISIBLE CLOUDINARY ERROR
+        alert(`Cloudinary Error: ${data.error.message}`);
       }
     } catch (error) {
-      console.error("Error communicating with Cloudinary", error);
+      alert(`Network Error: ${error.message}`);
     } finally {
       setIsUploadingImage(false);
     }
