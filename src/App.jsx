@@ -328,9 +328,22 @@ export default function App() {
   
   useEffect(() => {
     fetch(`${API_BASE}/posts`)
-      .then(res => res.json())
-      .then(data => setPosts(data))
-      .catch(err => console.error("Failed to load posts:", err));
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        if (Array.isArray(data)) {
+          setPosts(data);
+        } else {
+          console.error("API returned non-array data:", data);
+          setPosts([]); // Fallback to empty array so the page doesn't crash
+        }
+      })
+      .catch(err => {
+        console.error("Failed to load posts:", err);
+        setPosts([]); // Fallback to empty array
+      });
   }, []);
 
   // ESCAPE KEY LOGIC 
