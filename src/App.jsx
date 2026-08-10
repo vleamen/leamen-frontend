@@ -537,24 +537,39 @@ export default function App() {
     <div style={{ width: '100vw', height: '100dvh', display: 'flex', backgroundColor: '#050505', color: '#F5F5F5', fontFamily: 'Palatino Light', margin: 0, overflow: 'hidden', position: 'relative' }}>
       
       {/* LEFT PANEL: Navigation */}
+      {/* LEFT PANEL: Navigation */}
       <nav style={{ width: 'min(300px, 80vw)', padding: 'min(3rem, 6vh) min(3rem, 6vw)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '1rem', borderRight: '1px solid #1A1A1A', background: 'rgba(5, 5, 5, 0.2)', backdropFilter: 'blur(10px)' }}>
-        <h1 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '1.2rem', textTransform: 'lowercase', letterSpacing: '0.02em', marginBottom: '2rem', color: '#666666' }}>
-          leamen
-        </h1>
         
-        {['Home', 'Code', 'Design', 'Music', 'Shop'].map((item) => (
+        <motion.h1 
+          key={homeWobble} 
+          onMouseEnter={() => overlayMode === 'none' && setActivePage('home')}
+          onClick={() => {
+            setHomeWobble(prev => prev + 1);
+            setOverlayMode('none'); 
+            updateURL('/');
+          }}
+          initial={{ scale: 1 }}
+          animate={homeWobble > 0 ? { scale: [1, 1.05, 0.98, 1.02, 1] } : {}}
+          transition={{ duration: 0.6, ease: "easeInOut" }}
+          style={{ 
+            fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', 
+            fontSize: '1.4rem', 
+            textTransform: 'lowercase', 
+            letterSpacing: '0.02em', 
+            margin: '0 0 2rem 0', 
+            color: '#666666',
+            cursor: 'pointer',
+            originX: 0, originY: 0.5
+          }}
+        >
+          leamen
+        </motion.h1>
+        
+        {['Code', 'Design', 'Music', 'Shop'].map((item) => (
           <button
             key={item}
             onMouseEnter={() => overlayMode === 'none' && setActivePage(item.toLowerCase())}
-            onClick={() => {
-              if (item === 'Home') {
-                setHomeWobble(prev => prev + 1);
-                setOverlayMode('none'); 
-                updateURL('/');
-              } else {
-                openPublicGallery(item);
-              }
-            }}
+            onClick={() => openPublicGallery(item)}
             style={{
               fontFamily: 'inherit', background: 'transparent', border: 'none',
               color: activePage === item.toLowerCase() ? '#FFFFFF' : '#444444',
@@ -563,17 +578,7 @@ export default function App() {
               display: 'inline-flex'
             }}
           >
-            {item === 'Home' ? (
-              <motion.div
-                key={homeWobble} 
-                initial={{ scale: 1 }}
-                animate={homeWobble > 0 ? { scale: [1, 1.05, 0.98, 1.02, 1] } : {}}
-                transition={{ duration: 0.6, ease: "easeInOut" }}
-                style={{ originX: 0, originY: 0.5 }}
-              >
-                {item}
-              </motion.div>
-            ) : ( item )}
+            {item}
           </button>
         ))}
 
