@@ -12,10 +12,30 @@ const parseLinks = (post) => {
     const parsed = JSON.parse(post.link);
     if (Array.isArray(parsed)) return parsed;
   } catch (e) {
-    // Fallback for posts created before the multi-link update
     return [{ url: post.link, text: post.linkText || 'visit link ↗' }];
   }
   return [];
+};
+
+// --- HELPER: Auto-format standard YouTube/Vimeo URLs into Embed URLs ---
+const parseVideoUrl = (rawUrl) => {
+  let embedUrl = rawUrl;
+  try {
+    if (rawUrl.includes('youtube.com/watch')) {
+      const urlObj = new URL(rawUrl);
+      const videoId = urlObj.searchParams.get('v');
+      if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (rawUrl.includes('youtu.be/')) {
+      const videoId = rawUrl.split('youtu.be/')[1].split('?')[0];
+      if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (rawUrl.includes('vimeo.com/')) {
+      const videoId = rawUrl.split('vimeo.com/')[1].split('?')[0].split('/').pop();
+      if (videoId) embedUrl = `https://player.vimeo.com/video/${videoId}`;
+    }
+  } catch (e) {
+    console.error("Failed to parse video url", e);
+  }
+  return embedUrl;
 };
 
 // ------------------------------------------------------------------
@@ -178,7 +198,9 @@ const SphereCluster = ({ activePage, overlayMode }) => {
 // ------------------------------------------------------------------
 const PostCard = ({ post, onClick, compact }) => {
   const links = parseLinks(post);
-  const isLinkOnly = !post.image && !post.description && links.length > 0;
+  const isEmbed = post.image && post.image.startsWith('embed::');
+  const mediaUrl = isEmbed ? post.image.replace('embed::', '') : post.image;
+  const isLinkOnly = !mediaUrl && !post.description && links.length > 0;
 
   if (compact) {
     return (
@@ -187,9 +209,15 @@ const PostCard = ({ post, onClick, compact }) => {
            <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#FFF', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{post.title || 'untitled'}</span>
            <span style={{ fontSize: '0.8rem', color: '#888', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{post.date}</span>
          </div>
-         {post.image && (
-           <div style={{ width: '100%', height: '140px', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-             <img src={post.image} alt="post" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+         {mediaUrl && (
+           <div style={{ width: '100%', height: '140px', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: isEmbed ? 'rgba(0,0,0,0.4)' : 'transparent' }}>
+             {isEmbed ? (
+               <div style={{ color: '#888', display: 'flex', alignItems: 'center', gap: '0.5rem', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+                 <span style={{ fontSize: '1.5rem' }}>▶</span> <span>Video Embed</span>
+               </div>
+             ) : (
+               <img src={mediaUrl} alt="post" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+             )}
            </div>
          )}
          {post.description && (
@@ -238,9 +266,18 @@ const PostCard = ({ post, onClick, compact }) => {
           </div>
         ) : (
           <>
-            {post.image && (
+            {mediaUrl && (
               <div style={{ flex: post.description ? '1 1 50%' : '1 1 100%', height: '100%', borderRadius: '4px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={post.image} alt="post" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                {isEmbed ? (
+                  <iframe 
+                    src={mediaUrl} 
+                    style={{ width: '100%', height: '100%', border: 'none', borderRadius: '4px' }}
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                ) : (
+                  <img src={mediaUrl} alt="post" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                )}
               </div>
             )}
             
@@ -302,6 +339,7 @@ export default function App() {
   const [isLoadingPosts, setIsLoadingPosts] = useState(true);
   const [editingPost, setEditingPost] = useState(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [embedInputText, setEmbedInputText] = useState(''); // Text input for video URL
 
   const [publicGalleryIndex, setPublicGalleryIndex] = useState(0);
   const [scrollBounce, setScrollBounce] = useState(0); 
@@ -453,7 +491,15 @@ export default function App() {
 
   const handleCreateNewPost = () => {
     setEditingPost({ title: '', date: '', group: '', image: '', description: '', links: [] });
+    setEmbedInputText('');
     setOverlayMode('post_edit');
+  };
+
+  const handleAddEmbed = () => {
+    if (!embedInputText) return;
+    const formattedUrl = parseVideoUrl(embedInputText);
+    setEditingPost({ ...editingPost, image: `embed::${formattedUrl}` });
+    setEmbedInputText('');
   };
 
   const handleSavePost = async () => {
@@ -461,7 +507,6 @@ export default function App() {
     const method = isNew ? 'POST' : 'PUT';
     const endpoint = isNew ? `${API_BASE}/posts` : `${API_BASE}/posts/${editingPost.id}`;
 
-    // Clean up empty links and stringify before saving to db
     const cleanedLinks = (editingPost.links || []).filter(l => l.url && l.url.trim() !== '');
     
     const payload = {
@@ -470,8 +515,8 @@ export default function App() {
       group: editingPost.group,
       image: editingPost.image,
       description: editingPost.description,
-      link: JSON.stringify(cleanedLinks), // Store as JSON array string
-      linkText: '' // Blanking out old linkText since we use JSON now
+      link: JSON.stringify(cleanedLinks), 
+      linkText: '' 
     };
 
     try {
@@ -751,6 +796,7 @@ export default function App() {
                   {sortedPosts.map(post => (
                     <PostCard key={post.id} post={post} onClick={() => { 
                       setEditingPost({ ...post, links: parseLinks(post) }); 
+                      setEmbedInputText('');
                       setOverlayMode('post_edit'); 
                     }} compact />
                   ))}
@@ -784,10 +830,11 @@ export default function App() {
                   <option value="shop">Shop</option>
                 </select>
 
-                <div style={{ ...inputStyle, padding: '0.5rem 1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                {/* DUAL UPLOAD / EMBED INTERFACE */}
+                <div style={{ ...inputStyle, padding: '0.5rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <label style={{ fontSize: '0.9rem', color: isUploadingImage ? '#FFF' : '#888' }}>
-                      {isUploadingImage ? 'uploading image...' : 'Upload Image'}
+                      {editingPost.image ? 'Media Attached' : 'Attach Media (Image or Video)'}
                     </label>
                     {editingPost.image && (
                       <button 
@@ -795,26 +842,65 @@ export default function App() {
                         onClick={() => setEditingPost({ ...editingPost, image: '' })}
                         style={{ background: 'transparent', border: 'none', color: '#ff4444', fontSize: '0.8rem', cursor: 'pointer', padding: 0 }}
                       >
-                        Remove Image
+                        Remove Media
                       </button>
                     )}
                   </div>
                   
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleImageUpload} 
-                    disabled={isUploadingImage}
-                    style={{ 
-                      color: '#FFF', 
-                      opacity: isUploadingImage ? 0.3 : 1, 
-                      cursor: isUploadingImage ? 'wait' : 'pointer' 
-                    }} 
-                  />
+                  {!editingPost.image && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: '#666', display: 'block', marginBottom: '0.2rem' }}>Upload Image</label>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleImageUpload} 
+                          disabled={isUploadingImage}
+                          style={{ 
+                            color: '#FFF', 
+                            opacity: isUploadingImage ? 0.3 : 1, 
+                            cursor: isUploadingImage ? 'wait' : 'pointer',
+                            width: '100%'
+                          }} 
+                        />
+                      </div>
 
+                      <div style={{ textAlign: 'center', color: '#444', fontSize: '0.8rem' }}>OR</div>
+
+                      <div>
+                         <label style={{ fontSize: '0.8rem', color: '#666', display: 'block', marginBottom: '0.2rem' }}>Embed Video (YouTube / Vimeo URL)</label>
+                         <div style={{ display: 'flex', gap: '0.5rem' }}>
+                           <input 
+                             type="text" 
+                             placeholder="https://youtube.com/watch?v=..." 
+                             value={embedInputText} 
+                             onChange={e => setEmbedInputText(e.target.value)} 
+                             style={{ ...inputStyle, marginBottom: 0, flex: 1, padding: '0.5rem' }}
+                           />
+                           <button 
+                             type="button" 
+                             onClick={handleAddEmbed}
+                             style={{ background: '#FFF', color: '#000', border: 'none', borderRadius: '8px', padding: '0 1rem', cursor: 'pointer', fontWeight: 'bold' }}
+                           >
+                             Add
+                           </button>
+                         </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* MEDIA PREVIEW */}
                   {editingPost.image && (
-                    <div style={{ marginTop: '1rem', width: '100%', height: '120px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <img src={editingPost.image} alt="post preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                    <div style={{ marginTop: '1rem', width: '100%', height: '160px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {editingPost.image.startsWith('embed::') ? (
+                        <iframe 
+                          src={editingPost.image.replace('embed::', '')} 
+                          style={{ width: '100%', height: '100%', border: 'none' }}
+                          title="video preview"
+                        ></iframe>
+                      ) : (
+                        <img src={editingPost.image} alt="post preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                      )}
                     </div>
                   )}
                 </div>
