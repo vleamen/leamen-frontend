@@ -259,7 +259,6 @@ const PostCard = ({ post, onClick, compact }) => {
   );
 };
 
-
 // ------------------------------------------------------------------
 // MAIN APP COMPONENT
 // ------------------------------------------------------------------
@@ -281,6 +280,7 @@ export default function App() {
 
   const [posts, setPosts] = useState([]);
   const [editingPost, setEditingPost] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const [publicGalleryIndex, setPublicGalleryIndex] = useState(0);
   const [scrollBounce, setScrollBounce] = useState(0); 
@@ -470,14 +470,33 @@ export default function App() {
     }
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setEditingPost({ ...editingPost, image: reader.result });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    setIsUploadingImage(true); 
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'leamen_portfolio'); 
+
+    try {
+      const response = await fetch('https://api.cloudinary.com/v1_1/cwl2kjkf/image/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      
+      if (data.secure_url) {
+        setEditingPost({ ...editingPost, image: data.secure_url });
+      } else {
+        console.error("Upload failed:", data.error.message);
+      }
+    } catch (error) {
+      console.error("Error communicating with Cloudinary", error);
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -702,9 +721,40 @@ export default function App() {
                   <option value="shop">Shop</option>
                 </select>
 
+                {/* UPDATED IMAGE UPLOAD AND PREVIEW WITH REMOVE BUTTON */}
                 <div style={{ ...inputStyle, padding: '0.5rem 1rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#888' }}>Upload Image</label>
-                  <input type="file" accept="image/*" onChange={handleImageUpload} style={{ color: '#FFF' }} />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <label style={{ fontSize: '0.9rem', color: isUploadingImage ? '#FFF' : '#888' }}>
+                      {isUploadingImage ? 'uploading image...' : 'Upload Image'}
+                    </label>
+                    {editingPost.image && (
+                      <button 
+                        type="button" 
+                        onClick={() => setEditingPost({ ...editingPost, image: '' })}
+                        style={{ background: 'transparent', border: 'none', color: '#ff4444', fontSize: '0.8rem', cursor: 'pointer', padding: 0 }}
+                      >
+                        Remove Image
+                      </button>
+                    )}
+                  </div>
+                  
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleImageUpload} 
+                    disabled={isUploadingImage}
+                    style={{ 
+                      color: '#FFF', 
+                      opacity: isUploadingImage ? 0.3 : 1, 
+                      cursor: isUploadingImage ? 'wait' : 'pointer' 
+                    }} 
+                  />
+
+                  {editingPost.image && (
+                    <div style={{ marginTop: '1rem', width: '100%', height: '120px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <img src={editingPost.image} alt="post preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                    </div>
+                  )}
                 </div>
 
                 <textarea placeholder="Description..." rows={4} style={{...inputStyle, resize: 'none'}} value={editingPost.description} onChange={e => setEditingPost({...editingPost, description: e.target.value})} />
