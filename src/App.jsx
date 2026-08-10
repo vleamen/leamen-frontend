@@ -650,7 +650,7 @@ export default function App() {
     <div style={{ width: '100vw', height: '100dvh', display: 'flex', backgroundColor: '#050505', color: '#F5F5F5', fontFamily: 'Palatino Light', margin: 0, overflow: 'hidden', position: 'relative' }}>
       
       {/* LEFT PANEL: Navigation */}
-      <nav style={{ width: 'min(300px, 80vw)', padding: 'min(3rem, 6vh) min(3rem, 6vw)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '1rem', borderRight: '1px solid #1A1A1A', background: 'rgba(5, 5, 5, 0.2)', backdropFilter: 'blur(10px)' }}>
+      <nav style={{ width: 'min(250px, 80vw)', padding: 'min(3rem, 6vh) min(3rem, 6vw)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '1rem', borderRight: '1px solid #1A1A1A', background: 'rgba(5, 5, 5, 0.2)', backdropFilter: 'blur(10px)' }}>
         
         <motion.h1 
           key={homeWobble} 
