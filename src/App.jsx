@@ -176,23 +176,27 @@ const SphereCluster = ({ activePage, overlayMode }) => {
         targetPos.set(x * 1.2, y * 1.2, z * 1.2);
       } 
       else if (activePage === 'design') {
-        if (i < 3) {
-          targetPos.set(Math.sin(t * 2 + i) * 0.2, Math.cos(t * 2.1 + i) * 0.2, Math.sin(t * 1.9 + i) * 0.2);
-        } else {
-          const electronIdx = i - 3; const ring = Math.floor(electronIdx / 8); 
-          const offset = (electronIdx % 8) * (Math.PI / 4); 
-          const angle = t * 2 + offset + (ring * Math.PI / 6); 
-          const radius = 1.8; 
-          
-          if (ring === 0) targetPos.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0); 
-          else if (ring === 1) targetPos.set(0, Math.cos(angle) * radius, Math.sin(angle) * radius); 
-          else targetPos.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius); 
-        }
-      } 
+        // Golden Ratio (Phyllotaxis) Sphere - Classic, harmonious proportions
+        const y = 1 - (i / 26) * 2; 
+        const radius = Math.sqrt(1 - y * y) * 2.2;
+        const theta = 2.39996 * i + t * 0.8; // 2.39996 is the golden angle in radians
+        
+        targetPos.set(
+          Math.cos(theta) * radius,
+          y * 2.2, // Elongated slightly for elegance
+          Math.sin(theta) * radius
+        );
+      }
       else if (activePage === 'music') {
-        const row = Math.floor(i / 9); const col = i % 9; 
-        const x = (col - 4) * 0.7; const z = (row - 1) * 0.7;
-        const y = Math.sin(x * 1.5 + row * 0.8 - t * 3.5) * 1.2;
+        const row = Math.floor(i / 9); 
+        const col = i % 9; 
+        const x = (col - 4) * 0.8; 
+        const z = (row - 1) * 0.8;
+        
+        // Lowered the spatial frequencies (0.6 and 0.5) to stretch the wave out smoothly,
+        // and introduced Z-axis oscillation for a breathing, liquid-like roll.
+        const y = Math.sin(x * 0.6 - t * 2.5) * 0.8 + Math.cos(z * 0.5 - t * 1.5) * 0.4;
+        
         targetPos.set(x, y, z);
       }
       else if (activePage === 'shop') {
