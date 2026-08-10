@@ -212,8 +212,8 @@ const SphereCluster = ({ activePage, overlayMode }) => {
       else if (activePage === 'music') {
         const row = Math.floor(i / 9); const col = i % 9; 
         
-        const x = (col - 4) * 0.7; 
-        const z = (row - 1) * 0.7;
+        const x = (col - 4) * 0.75; 
+        const z = (row - 1) * 0.75;
         
         // 2. Wave Shape: Lowered x * 1.5 to x * 0.8 to stretch the wave horizontally
         const y = Math.sin(x * 0.8 + row * 0.5 - t * 3.5) * 1.2;
