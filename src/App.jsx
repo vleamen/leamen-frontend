@@ -281,6 +281,7 @@ export default function App() {
   const [posts, setPosts] = useState([]);
   const [editingPost, setEditingPost] = useState(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(true);
 
   const [publicGalleryIndex, setPublicGalleryIndex] = useState(0);
   const [scrollBounce, setScrollBounce] = useState(0); 
@@ -327,6 +328,7 @@ export default function App() {
   }, [activePage, overlayMode]);
   
   useEffect(() => {
+    setIsLoadingPosts(true);
     fetch(`${API_BASE}/posts`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -336,13 +338,15 @@ export default function App() {
         if (Array.isArray(data)) {
           setPosts(data);
         } else {
-          console.error("API returned non-array data:", data);
-          setPosts([]); // Fallback to empty array so the page doesn't crash
+          setPosts([]); 
         }
       })
       .catch(err => {
         console.error("Failed to load posts:", err);
-        setPosts([]); // Fallback to empty array
+        setPosts([]); 
+      })
+      .finally(() => {
+        setIsLoadingPosts(false);
       });
   }, []);
 
@@ -827,7 +831,9 @@ export default function App() {
                 }}
                 style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: '10vh' }}
               >
-                {activeGroupPosts.length === 0 ? (
+                {isLoadingPosts ? (
+                  <p style={{ color: '#BBB', fontSize: '1.2rem', fontFamily: 'inherit' }}>loading...</p>
+                ) : activeGroupPosts.length === 0 ? (
                   <p style={{ color: '#BBB', fontSize: '1.2rem', fontFamily: 'inherit' }}>under renovation.</p>
                 ) : (
                   activeGroupPosts.map((post, i) => {
@@ -873,7 +879,7 @@ export default function App() {
                   <motion.button
                     initial={{ opacity: 0 }} 
                     animate={{ opacity: publicGalleryIndex > 0 ? 0.5 : 0 }}
-                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
                     whileHover={publicGalleryIndex > 0 ? { opacity: 1, scale: 1.1 } : {}}
                     onClick={() => publicGalleryIndex > 0 && setPublicGalleryIndex(p => p - 1)}
                     style={{
@@ -908,7 +914,7 @@ export default function App() {
                   <motion.button
                     initial={{ opacity: 0 }}
                     animate={{ opacity: publicGalleryIndex < activeGroupPosts.length - 1 ? 0.5 : 0 }}
-                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
                     whileHover={publicGalleryIndex < activeGroupPosts.length - 1 ? { opacity: 1, scale: 1.1 } : {}}
                     onClick={() => publicGalleryIndex < activeGroupPosts.length - 1 && setPublicGalleryIndex(p => p + 1)}
                     style={{
