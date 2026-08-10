@@ -853,7 +853,7 @@ export default function App() {
             {overlayMode === 'dev_dashboard' && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ width: '80%', height: '70%', overflowY: 'auto', padding: '2rem', position: 'relative' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                  <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: 'normal', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Posts</h2>
+                  <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: 'normal', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>Studio</h2>
                   <button 
                     onClick={() => {
                       setOverlayMode('none');
