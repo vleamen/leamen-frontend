@@ -625,9 +625,8 @@ export default function App() {
             setOverlayMode('none'); 
             updateURL('/');
           }}
-          initial={{ scale: 1, textShadow: '0 0 0px rgba(255,255,255,0)' }}
+          initial={{ scale: 1 }}
           animate={homeWobble > 0 ? { scale: [1, 1.05, 0.98, 1.02, 1] } : {}}
-          whileHover={{ textShadow: '0 0 20px rgba(255,255,255,0.8)' }}
           transition={{ duration: 0.6, ease: "easeInOut" }}
           style={{ 
             fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', 
@@ -635,7 +634,8 @@ export default function App() {
             textTransform: 'lowercase', 
             letterSpacing: '0.02em', 
             margin: '0 0 2rem 0', 
-            color: '#FFFFFF',
+            color: activePage === 'home' ? '#FFFFFF' : '#888888',
+            textShadow: activePage === 'home' ? '0 0 20px rgba(255,255,255,0.5)' : 'none',
             cursor: 'pointer',
             originX: 0, originY: 0.5
           }}
