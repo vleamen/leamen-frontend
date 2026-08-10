@@ -176,38 +176,37 @@ const SphereCluster = ({ activePage, overlayMode }) => {
         targetPos.set(x * 1.2, y * 1.2, z * 1.2);
       } 
       else if (activePage === 'design') {
-        // 1. The Nucleus (3 spheres) - Tightly bound, vibrating core
+        // 1. The Nucleus: 3 spheres tightly grouped and spinning in the center
         if (i < 3) {
-          const coreTime = t * 3 + i * 2;
+          const angle = (i / 3) * Math.PI * 2 + (t * 2);
+          const radius = 0.25;
           targetPos.set(
-            Math.sin(coreTime * 1.1) * 0.25,
-            Math.cos(coreTime * 1.3) * 0.25,
-            Math.sin(coreTime * 0.9) * 0.25
+            Math.cos(angle) * radius, 
+            Math.sin(angle) * radius, 
+            Math.cos(angle * 1.5) * radius
           );
         } 
-        // 2. The Electron Rings (24 spheres)
+        // 2. The Electron Orbitals: 3 perfectly symmetrical, intersecting rings
         else {
           const electronIdx = i - 3; 
-          const ring = Math.floor(electronIdx / 8); 
-          const offset = (electronIdx % 8) * (Math.PI / 4); 
+          const ring = Math.floor(electronIdx / 8); // Groups into Ring 0, 1, or 2
+          const offset = (electronIdx % 8) * (Math.PI / 4); // Spaces 8 spheres evenly
           
-          // Counter-rotate the middle ring for better kinetic energy
-          const speed = ring === 1 ? -1.8 : 1.5; 
-          const angle = t * speed + offset; 
+          const radius = 2.0;
+          const angle = (t * 1.5) + offset; 
           
-          // Breathing radius to give the atom a subtle pulse
-          const radius = 1.9 + Math.sin(t * 2 + ring) * 0.05; 
+          // Create a perfect 2D circle first
+          const baseX = Math.cos(angle) * radius;
+          const baseY = Math.sin(angle) * radius;
           
-          // Assigning rings to 3 distinct planes with a subtle 3D tilt (0.3 wobble)
-          if (ring === 0) {
-            targetPos.set(Math.cos(angle) * radius, Math.sin(angle) * radius, Math.sin(angle) * 0.3); 
-          }
-          else if (ring === 1) {
-            targetPos.set(Math.cos(angle) * 0.3, Math.cos(angle) * radius, Math.sin(angle) * radius); 
-          }
-          else {
-            targetPos.set(Math.cos(angle) * radius, Math.sin(angle) * 0.3, Math.sin(angle) * radius); 
-          }
+          // Tilt each ring by 60 degrees (PI / 3) to create the classic atom cross-section
+          const tilt = ring * (Math.PI / 3); 
+          
+          targetPos.set(
+            baseX * Math.cos(tilt),
+            baseY,
+            baseX * Math.sin(tilt)
+          );
         }
       }
       else if (activePage === 'music') {
