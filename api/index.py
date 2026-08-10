@@ -168,7 +168,7 @@ def get_posts():
     posts = []
     for row in rows:
         posts.append({
-            "id": row[0]["value"],
+            "id": int(row[0]["value"]), # Cast string ID to integer
             "title": row[1].get("value", "") if row[1] else "",
             "date": row[2].get("value", "") if row[2] else "",
             "group": row[3].get("value", "") if row[3] else "",
@@ -203,7 +203,7 @@ def create_post(post: PostBase):
     res = execute_turso("SELECT id, title, date, group_name, image, description, link, linkText FROM posts ORDER BY id DESC LIMIT 1;")
     row = res.get("rows", [])[0]
     return {
-        "id": row[0]["value"],
+        "id": int(row[0]["value"]), # Cast string ID to integer
         "title": row[1].get("value", "") if row[1] else "",
         "date": row[2].get("value", "") if row[2] else "",
         "group": row[3].get("value", "") if row[3] else "",
