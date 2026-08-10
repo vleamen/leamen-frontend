@@ -39,29 +39,32 @@ const parseVideoUrl = (rawUrl) => {
 };
 
 // --- HELPER: Safely parse dates for Safari (handles mm.dd.yy) ---
+// --- HELPER: Bulletproof date parser for Safari (handles mm.dd.yy) ---
 const getSafeTimestamp = (dateStr) => {
-  if (!dateStr) return NaN;
+  if (!dateStr) return 0;
   
-  // 1. Intercept the custom mm.dd.yy format
-  const dotFormatMatch = dateStr.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2}|\d{4})$/);
+  // Split the string by dots (or dashes/slashes just in case) and remove spaces
+  const parts = dateStr.trim().split(/[\.\-\/]/);
   
-  if (dotFormatMatch) {
-    let [_, month, day, year] = dotFormatMatch;
+  if (parts.length === 3) {
+    const month = parseInt(parts[0], 10);
+    const day = parseInt(parts[1], 10);
+    let year = parseInt(parts[2], 10);
     
-    // If the year is only 2 digits (e.g. '26'), assume it's in the 2000s ('2026')
-    if (year.length === 2) {
-      year = `20${year}`;
+    // Ensure all parts successfully converted to numbers
+    if (!isNaN(month) && !isNaN(day) && !isNaN(year)) {
+      // Expand 2-digit year (26) to 4-digit year (2026)
+      if (year < 100) year += 2000;
+      
+      // Build the date mathematically to bypass Safari's string parser
+      // Note: JavaScript months are 0-indexed (0 = Jan), so we subtract 1
+      return new Date(year, month - 1, day).getTime();
     }
-    
-    // Convert to standard MM/DD/YYYY which all browsers understand natively
-    return Date.parse(`${month}/${day}/${year}`);
   }
   
-  // 2. Fallback for any other standard formats
-  let parsed = Date.parse(dateStr);
-  if (!isNaN(parsed)) return parsed;
-  
-  return NaN;
+  // Fallback for standard formats
+  const parsed = Date.parse(dateStr);
+  return isNaN(parsed) ? 0 : parsed;
 };
 
 // ------------------------------------------------------------------
@@ -460,9 +463,15 @@ export default function App() {
 
   const sortedPosts = useMemo(() => {
     return [...posts].sort((a, b) => {
-      const dateA = Date.parse(a.date);
-      const dateB = Date.parse(b.date);
-      if (!isNaN(dateA) && !isNaN(dateB)) return dateB - dateA;
+      const dateA = getSafeTimestamp(a.date);
+      const dateB = getSafeTimestamp(b.date);
+      
+      // If the dates are different, sort chronologically
+      if (dateA !== dateB) {
+        return dateB - dateA;
+      }
+      
+      // If the dates are identical (or both blank), sort by newest added
       return b.id - a.id; 
     });
   }, [posts]);
