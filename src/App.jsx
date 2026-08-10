@@ -452,9 +452,13 @@ export default function App() {
         setPosts(prev => isNew ? [savedPost, ...prev] : prev.map(p => p.id === savedPost.id ? savedPost : p));
         setEditingPost(null);
         setOverlayMode('dev_dashboard');
+      } else {
+        // THIS WILL REVEAL THE INVISIBLE ERROR
+        const errorData = await response.json();
+        alert(`Backend Error: ${errorData.detail || JSON.stringify(errorData)}`);
       }
     } catch (error) {
-      console.error("Failed to save post");
+      alert("Network Error: Could not reach the server.");
     }
   };
 
@@ -476,9 +480,13 @@ export default function App() {
           setPosts(prev => prev.filter(p => p.id !== editingPost.id));
           setEditingPost(null);
           setOverlayMode('dev_dashboard');
+        } else {
+          // THIS WILL REVEAL THE INVISIBLE ERROR
+          const errorData = await response.json();
+          alert(`Delete Error: ${errorData.detail || JSON.stringify(errorData)}`);
         }
       } catch (error) {
-        console.error("Failed to delete post");
+        alert("Network Error: Could not reach the server.");
       }
     }
   };
