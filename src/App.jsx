@@ -38,6 +38,32 @@ const parseVideoUrl = (rawUrl) => {
   return embedUrl;
 };
 
+// --- HELPER: Safely parse dates for Safari (handles mm.dd.yy) ---
+const getSafeTimestamp = (dateStr) => {
+  if (!dateStr) return NaN;
+  
+  // 1. Intercept the custom mm.dd.yy format
+  const dotFormatMatch = dateStr.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2}|\d{4})$/);
+  
+  if (dotFormatMatch) {
+    let [_, month, day, year] = dotFormatMatch;
+    
+    // If the year is only 2 digits (e.g. '26'), assume it's in the 2000s ('2026')
+    if (year.length === 2) {
+      year = `20${year}`;
+    }
+    
+    // Convert to standard MM/DD/YYYY which all browsers understand natively
+    return Date.parse(`${month}/${day}/${year}`);
+  }
+  
+  // 2. Fallback for any other standard formats
+  let parsed = Date.parse(dateStr);
+  if (!isNaN(parsed)) return parsed;
+  
+  return NaN;
+};
+
 // ------------------------------------------------------------------
 // 3D SCENE COMPONENT (Optimized & Frame-Rate Independent)
 // ------------------------------------------------------------------
