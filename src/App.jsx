@@ -1051,7 +1051,7 @@ export default function App() {
                   <motion.button
                     initial={{ opacity: 0 }} 
                     animate={{ opacity: publicGalleryIndex > 0 ? 0.5 : 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
                     whileHover={publicGalleryIndex > 0 ? { opacity: 1, scale: 1.1 } : {}}
                     onClick={() => publicGalleryIndex > 0 && setPublicGalleryIndex(p => p - 1)}
                     style={{
@@ -1086,7 +1086,7 @@ export default function App() {
                   <motion.button
                     initial={{ opacity: 0 }}
                     animate={{ opacity: publicGalleryIndex < activeGroupPosts.length - 1 ? 0.5 : 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
                     whileHover={publicGalleryIndex < activeGroupPosts.length - 1 ? { opacity: 1, scale: 1.1 } : {}}
                     onClick={() => publicGalleryIndex < activeGroupPosts.length - 1 && setPublicGalleryIndex(p => p + 1)}
                     style={{
