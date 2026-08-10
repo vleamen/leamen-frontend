@@ -176,30 +176,45 @@ const SphereCluster = ({ activePage, overlayMode }) => {
         targetPos.set(x * 1.2, y * 1.2, z * 1.2);
       } 
       else if (activePage === 'design') {
-        // The Möbius Ribbon: A continuous 3D figure-8 loop
-        
-        // Distribute the 27 spheres evenly across a full 360-degree circle (PI * 2), 
-        // and add time (t * 0.6) so they constantly flow along the track.
-        const angle = (i / 27) * Math.PI * 2 + (t * 0.6); 
-        
-        // X creates the wide left-to-right span
-        const x = Math.sin(angle) * 2.6;
-        
-        // Y uses double the angle (angle * 2) to force the ribbon to dip up and down 
-        // twice per rotation, creating the signature twisting saddle shape
-        const y = Math.sin(angle * 2) * 1.2; 
-        
-        // Z gives the loop physical depth so it crosses over itself in 3D space
-        const z = Math.cos(angle) * 1.4;
-        
-        targetPos.set(x, y, z);
+        // 1. The Nucleus (3 spheres) - Tightly bound, vibrating core
+        if (i < 3) {
+          const coreTime = t * 3 + i * 2;
+          targetPos.set(
+            Math.sin(coreTime * 1.1) * 0.25,
+            Math.cos(coreTime * 1.3) * 0.25,
+            Math.sin(coreTime * 0.9) * 0.25
+          );
+        } 
+        // 2. The Electron Rings (24 spheres)
+        else {
+          const electronIdx = i - 3; 
+          const ring = Math.floor(electronIdx / 8); 
+          const offset = (electronIdx % 8) * (Math.PI / 4); 
+          
+          // Counter-rotate the middle ring for better kinetic energy
+          const speed = ring === 1 ? -1.8 : 1.5; 
+          const angle = t * speed + offset; 
+          
+          // Breathing radius to give the atom a subtle pulse
+          const radius = 1.9 + Math.sin(t * 2 + ring) * 0.05; 
+          
+          // Assigning rings to 3 distinct planes with a subtle 3D tilt (0.3 wobble)
+          if (ring === 0) {
+            targetPos.set(Math.cos(angle) * radius, Math.sin(angle) * radius, Math.sin(angle) * 0.3); 
+          }
+          else if (ring === 1) {
+            targetPos.set(Math.cos(angle) * 0.3, Math.cos(angle) * radius, Math.sin(angle) * radius); 
+          }
+          else {
+            targetPos.set(Math.cos(angle) * radius, Math.sin(angle) * 0.3, Math.sin(angle) * radius); 
+          }
+        }
       }
       else if (activePage === 'music') {
         const row = Math.floor(i / 9); const col = i % 9; 
         
-        // 1. Spacing: Changed 0.7 to 0.9 to stretch the grid wider
-        const x = (col - 4) * 0.9; 
-        const z = (row - 1) * 0.9;
+        const x = (col - 4) * 0.7; 
+        const z = (row - 1) * 0.7;
         
         // 2. Wave Shape: Lowered x * 1.5 to x * 0.8 to stretch the wave horizontally
         const y = Math.sin(x * 0.8 + row * 0.5 - t * 3.5) * 1.2;
