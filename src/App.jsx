@@ -612,10 +612,10 @@ export default function App() {
   };
 
   return (
-    <div style={{ width: '100vw', height: '100dvh', display: 'flex', backgroundColor: '#050505', color: '#F5F5F5', fontFamily: 'Palatino Light', margin: 0, overflow: 'hidden', position: 'relative' }}>
+    <div style={{ width: '100vw', height: '100vh', display: 'flex', backgroundColor: '#050505', color: '#F5F5F5', fontFamily: 'Palatino Light', margin: 0, overflow: 'hidden', position: 'relative' }}>
       
       {/* LEFT PANEL: Navigation */}
-      <nav style={{ width: 'min(300px, 80vw)', padding: 'min(3rem, 6vh) min(3rem, 6vw)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '1rem', borderRight: '1px solid #1A1A1A', background: 'rgba(5, 5, 5, 0.2)', backdropFilter: 'blur(10px)' }}>
+      <nav style={{ width: 'min(300px, 80vw)', padding: 'max(3rem, env(safe-area-inset-top)) min(3rem, 6vw) max(3rem, env(safe-area-inset-bottom))', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '1rem', borderRight: '1px solid #1A1A1A', background: 'rgba(5, 5, 5, 0.2)', backdropFilter: 'blur(10px)' }}>
         
         <motion.h1 
           key={homeWobble} 
@@ -1040,10 +1040,10 @@ export default function App() {
             {(overlayMode !== 'dev_dashboard' && overlayMode !== 'post_edit') && (
               <motion.div
                 initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                transition={{ delay: 0.15, duration: 0.5, ease: 'easeOut' }} 
+                transition={{ delay: 0.15, duration: 0.5, ease: 'easeOut' }}
                 style={{
-                  position: 'absolute', bottom: 'max(4vh, 30px)', display: 'flex', alignItems: 'center', 
-                  gap: 'min(3rem, 8vw)', zIndex: 100 
+                  position: 'absolute', bottom: 'calc(max(4vh, 30px) + env(safe-area-inset-bottom))', display: 'flex', alignItems: 'center',
+                  gap: 'min(3rem, 8vw)', zIndex: 100
                 }}
               >
                 
