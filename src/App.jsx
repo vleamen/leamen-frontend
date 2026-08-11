@@ -210,11 +210,11 @@ const SphereCluster = ({ activePage, overlayMode }) => {
         }
       }
       else if (activePage === 'music') {
-        const row = Math.floor(i / 9); 
-        const col = i % 9; 
+        const row = Math.floor(i / 7.6); 
+        const col = i % 7.6; 
         
         // 1. The Stagger: Shift Row 0 left, Row 1 center, and Row 2 right
-        const xStagger = (row - 1) * 0.8; 
+        const xStagger = (row - 1) * 0.6; 
         
         // 2. Add the stagger to the X calculation
         const x = (col - 4) * 0.9 + xStagger; 
