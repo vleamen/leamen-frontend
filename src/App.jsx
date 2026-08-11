@@ -210,15 +210,15 @@ const SphereCluster = ({ activePage, overlayMode }) => {
         }
       }
       else if (activePage === 'music') {
-        const row = Math.floor(i / 7.6); 
-        const col = i % 7.6; 
+        const row = Math.floor(i / 9); 
+        const col = i % 9; 
         
         // 1. The Stagger: Shift Row 0 left, Row 1 center, and Row 2 right
         const xStagger = (row - 1) * 0.6; 
         
         // 2. Add the stagger to the X calculation
-        const x = (col - 4) * 0.9 + xStagger; 
-        const z = (row - 1) * 0.9;
+        const x = (col - 4) * 0.75 + xStagger; 
+        const z = (row - 1) * 0.75;
         
         // 3. Keep the same smooth, stretched wave
         const y = Math.sin(x * 0.6 - t * 2.5) * 0.8 + Math.cos(z * 0.5 - t * 1.5) * 0.4;
