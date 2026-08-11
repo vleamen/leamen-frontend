@@ -278,32 +278,36 @@ const PostCard = ({ post, onClick, compact }) => {
            </div>
          )}
          {post.description && (
-              <div 
-                // 1. Block the 3D Canvas
-                onWheel={(e) => e.stopPropagation()} 
+              // 1. NEW OUTER WRAPPER: Stays totally still and applies the fade mask
+              <div style={{ 
+                flex: '1 1 50%', 
+                display: 'flex', 
+                flexDirection: 'column',
+                overflow: 'hidden', // Keeps the mask strictly bound to the visible area
+                WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
+                maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)'
+              }}>
                 
-                // 2. Hide touches from Framer Motion using the Capture phase
-                onPointerDownCapture={(e) => e.stopPropagation()}
-                onTouchStartCapture={(e) => e.stopPropagation()}
-                onTouchMoveCapture={(e) => e.stopPropagation()}
-                
-                style={{ 
-                  flex: '1 1 50%', 
-                  paddingRight: '1rem',
-                  overflowY: 'auto',
-                  WebkitOverflowScrolling: 'touch',
-                  overscrollBehavior: 'contain',
-                  touchAction: 'auto',
-                  
-                  // 3. NEW: CSS Mask to fade out the bottom of the container
-                  WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
-                  maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)'
-                }}
-              >
-                {/* Added paddingBottom so the last line of text clears the faded zone when fully scrolled */}
-                <p style={{ fontSize: '1.2rem', color: '#DDD', margin: 0, lineHeight: 1.6, paddingBottom: '3rem' }}>
-                  {post.description}
-                </p>
+                // 2. INNER SCROLLER: Holds the text and handles the thumb swipes
+                <div 
+                  onWheel={(e) => e.stopPropagation()} 
+                  onPointerDownCapture={(e) => e.stopPropagation()}
+                  onTouchStartCapture={(e) => e.stopPropagation()}
+                  onTouchMoveCapture={(e) => e.stopPropagation()}
+                  style={{ 
+                    flex: 1, 
+                    paddingRight: '1rem',
+                    overflowY: 'auto',
+                    WebkitOverflowScrolling: 'touch',
+                    overscrollBehavior: 'contain',
+                    touchAction: 'auto' 
+                  }}
+                >
+                  <p style={{ fontSize: '1.2rem', color: '#DDD', margin: 0, lineHeight: 1.6, paddingBottom: '3rem' }}>
+                    {post.description}
+                  </p>
+                </div>
+
               </div>
             )}
       </div>
