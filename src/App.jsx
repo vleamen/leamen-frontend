@@ -278,8 +278,34 @@ const PostCard = ({ post, onClick, compact }) => {
            </div>
          )}
          {post.description && (
-           <p style={{ fontSize: '0.9rem', color: '#CCC', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{post.description}</p>
-         )}
+              <div 
+                // 1. Block the 3D Canvas
+                onWheel={(e) => e.stopPropagation()} 
+                
+                // 2. Hide touches from Framer Motion using the Capture phase
+                onPointerDownCapture={(e) => e.stopPropagation()}
+                onTouchStartCapture={(e) => e.stopPropagation()}
+                onTouchMoveCapture={(e) => e.stopPropagation()}
+                
+                style={{ 
+                  flex: '1 1 50%', 
+                  paddingRight: '1rem',
+                  overflowY: 'auto',
+                  WebkitOverflowScrolling: 'touch',
+                  overscrollBehavior: 'contain',
+                  touchAction: 'auto',
+                  
+                  // 3. NEW: CSS Mask to fade out the bottom of the container
+                  WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
+                  maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)'
+                }}
+              >
+                {/* Added paddingBottom so the last line of text clears the faded zone when fully scrolled */}
+                <p style={{ fontSize: '1.2rem', color: '#DDD', margin: 0, lineHeight: 1.6, paddingBottom: '3rem' }}>
+                  {post.description}
+                </p>
+              </div>
+            )}
       </div>
     );
   }
