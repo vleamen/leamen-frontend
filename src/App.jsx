@@ -278,17 +278,18 @@ const PostCard = ({ post, onClick, compact }) => {
            </div>
          )}
          {post.description && (
-              // 1. NEW OUTER WRAPPER: Stays totally still and applies the fade mask
+              // 1. OUTER WRAPPER: Constrained height ensures the mask stays on-screen
               <div style={{ 
                 flex: '1 1 50%', 
+                height: '100%', 
+                minHeight: 0, // The magic bullet that stops Flexbox from secretly stretching
                 display: 'flex', 
                 flexDirection: 'column',
-                overflow: 'hidden', // Keeps the mask strictly bound to the visible area
-                WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
-                maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)'
+                WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)',
+                maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)'
               }}>
                 
-                // 2. INNER SCROLLER: Holds the text and handles the thumb swipes
+                {/* 2. INNER SCROLLER: Handles the text and thumb swipes */}
                 <div 
                   onWheel={(e) => e.stopPropagation()} 
                   onPointerDownCapture={(e) => e.stopPropagation()}
@@ -303,7 +304,7 @@ const PostCard = ({ post, onClick, compact }) => {
                     touchAction: 'auto' 
                   }}
                 >
-                  <p style={{ fontSize: '1.2rem', color: '#DDD', margin: 0, lineHeight: 1.6, paddingBottom: '3rem' }}>
+                  <p style={{ fontSize: '1.2rem', color: '#DDD', margin: 0, lineHeight: 1.6, paddingBottom: '4rem' }}>
                     {post.description}
                   </p>
                 </div>
