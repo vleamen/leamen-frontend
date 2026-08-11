@@ -278,41 +278,8 @@ const PostCard = ({ post, onClick, compact }) => {
            </div>
          )}
          {post.description && (
-              // 1. THE ANCHOR: Takes up the 50% flex space, but acts as a rigid boundary
-              <div style={{ flex: '1 1 50%', position: 'relative', minHeight: 0 }}>
-                
-                // 2. THE MASK LAYER: Absolutely pinned to the anchor's corners. 
-                // It cannot stretch, forcing the mask to stay on screen.
-                <div style={{ 
-                  position: 'absolute', 
-                  inset: 0, // Shorthand for top: 0, left: 0, right: 0, bottom: 0
-                  WebkitMaskImage: 'linear-gradient(180deg, #000 70%, transparent 100%)',
-                  maskImage: 'linear-gradient(180deg, #000 70%, transparent 100%)'
-                }}>
-                  
-                  // 3. THE SCROLLER: Fits perfectly inside the mask layer
-                  <div 
-                    onWheel={(e) => e.stopPropagation()} 
-                    onPointerDownCapture={(e) => e.stopPropagation()}
-                    onTouchStartCapture={(e) => e.stopPropagation()}
-                    onTouchMoveCapture={(e) => e.stopPropagation()}
-                    style={{ 
-                      height: '100%', 
-                      paddingRight: '1rem',
-                      overflowY: 'auto',
-                      WebkitOverflowScrolling: 'touch',
-                      overscrollBehavior: 'contain',
-                      touchAction: 'auto' 
-                    }}
-                  >
-                    <p style={{ fontSize: '1.2rem', color: '#DDD', margin: 0, lineHeight: 1.6, paddingBottom: '4rem' }}>
-                      {post.description}
-                    </p>
-                  </div>
-                </div>
-                
-              </div>
-            )}
+           <p style={{ fontSize: '0.9rem', color: '#CCC', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>{post.description}</p>
+         )}
       </div>
     );
   }
@@ -381,28 +348,38 @@ const PostCard = ({ post, onClick, compact }) => {
             )}
             
             {post.description && (
-              <div 
-                // 1. Block the 3D Canvas
-                onWheel={(e) => e.stopPropagation()} 
+              // 1. THE ANCHOR: Takes up the 50% flex space, but acts as a rigid boundary
+              <div style={{ flex: '1 1 50%', position: 'relative', minHeight: 0 }}>
                 
-                // 2. Hide touches from Framer Motion using the Capture phase
-                onPointerDownCapture={(e) => e.stopPropagation()}
-                onTouchStartCapture={(e) => e.stopPropagation()}
-                onTouchMoveCapture={(e) => e.stopPropagation()}
-                
-                style={{ 
-                  flex: '1 1 50%', 
-                  paddingRight: '1rem',
-                  overflowY: 'auto',
-                  WebkitOverflowScrolling: 'touch',
-                  overscrollBehavior: 'contain',
+                {/* 2. THE MASK LAYER: Absolutely pinned to the anchor's corners. */}
+                <div style={{ 
+                  position: 'absolute', 
+                  inset: 0, 
+                  WebkitMaskImage: 'linear-gradient(180deg, #000 70%, transparent 100%)',
+                  maskImage: 'linear-gradient(180deg, #000 70%, transparent 100%)'
+                }}>
                   
-                  // Changed from 'pan-y' to 'auto' so it doesn't conflict 
-                  // with Framer Motion's injected CSS rules
-                  touchAction: 'auto' 
-                }}
-              >
-                <p style={{ fontSize: '1.2rem', color: '#DDD', margin: 0, lineHeight: 1.6 }}>{post.description}</p>
+                  {/* 3. THE SCROLLER: Fits perfectly inside the mask layer */}
+                  <div 
+                    onWheel={(e) => e.stopPropagation()} 
+                    onPointerDownCapture={(e) => e.stopPropagation()}
+                    onTouchStartCapture={(e) => e.stopPropagation()}
+                    onTouchMoveCapture={(e) => e.stopPropagation()}
+                    style={{ 
+                      height: '100%', 
+                      paddingRight: '1rem',
+                      overflowY: 'auto',
+                      WebkitOverflowScrolling: 'touch',
+                      overscrollBehavior: 'contain',
+                      touchAction: 'auto' 
+                    }}
+                  >
+                    <p style={{ fontSize: '1.2rem', color: '#DDD', margin: 0, lineHeight: 1.6, paddingBottom: '4rem' }}>
+                      {post.description}
+                    </p>
+                  </div>
+                </div>
+                
               </div>
             )}
           </>
