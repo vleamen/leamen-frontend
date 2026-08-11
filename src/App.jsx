@@ -210,13 +210,18 @@ const SphereCluster = ({ activePage, overlayMode }) => {
         }
       }
       else if (activePage === 'music') {
-        const row = Math.floor(i / 9); const col = i % 9; 
+        const row = Math.floor(i / 9); 
+        const col = i % 9; 
         
-        const x = (col - 4) * 0.75; 
-        const z = (row - 1) * 0.75;
+        // 1. The Stagger: Shift Row 0 left, Row 1 center, and Row 2 right
+        const xStagger = (row - 1) * 0.8; 
         
-        // 2. Wave Shape: Lowered x * 1.5 to x * 0.8 to stretch the wave horizontally
-        const y = Math.sin(x * 0.8 + row * 0.5 - t * 3.5) * 1.2;
+        // 2. Add the stagger to the X calculation
+        const x = (col - 4) * 0.9 + xStagger; 
+        const z = (row - 1) * 0.9;
+        
+        // 3. Keep the same smooth, stretched wave
+        const y = Math.sin(x * 0.6 - t * 2.5) * 0.8 + Math.cos(z * 0.5 - t * 1.5) * 0.4;
         
         targetPos.set(x, y, z);
       }
