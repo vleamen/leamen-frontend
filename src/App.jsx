@@ -214,7 +214,7 @@ const SphereCluster = ({ activePage, overlayMode }) => {
         const col = i % 9; 
         
         // 1. The Stagger: Shift Row 0 left, Row 1 center, and Row 2 right
-        const xStagger = (row - 1) * 0.6; 
+        const xStagger = (row - 1) * 0.4; 
         
         // 2. Add the stagger to the X calculation
         const x = (col - 4) * 0.75 + xStagger; 
