@@ -278,37 +278,39 @@ const PostCard = ({ post, onClick, compact }) => {
            </div>
          )}
          {post.description && (
-              // 1. OUTER WRAPPER: Constrained height ensures the mask stays on-screen
-              <div style={{ 
-                flex: '1 1 50%', 
-                height: '100%', 
-                minHeight: 0, // The magic bullet that stops Flexbox from secretly stretching
-                display: 'flex', 
-                flexDirection: 'column',
-                WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)',
-                maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)'
-              }}>
+              // 1. THE ANCHOR: Takes up the 50% flex space, but acts as a rigid boundary
+              <div style={{ flex: '1 1 50%', position: 'relative', minHeight: 0 }}>
                 
-                {/* 2. INNER SCROLLER: Handles the text and thumb swipes */}
-                <div 
-                  onWheel={(e) => e.stopPropagation()} 
-                  onPointerDownCapture={(e) => e.stopPropagation()}
-                  onTouchStartCapture={(e) => e.stopPropagation()}
-                  onTouchMoveCapture={(e) => e.stopPropagation()}
-                  style={{ 
-                    flex: 1, 
-                    paddingRight: '1rem',
-                    overflowY: 'auto',
-                    WebkitOverflowScrolling: 'touch',
-                    overscrollBehavior: 'contain',
-                    touchAction: 'auto' 
-                  }}
-                >
-                  <p style={{ fontSize: '1.2rem', color: '#DDD', margin: 0, lineHeight: 1.6, paddingBottom: '4rem' }}>
-                    {post.description}
-                  </p>
+                // 2. THE MASK LAYER: Absolutely pinned to the anchor's corners. 
+                // It cannot stretch, forcing the mask to stay on screen.
+                <div style={{ 
+                  position: 'absolute', 
+                  inset: 0, // Shorthand for top: 0, left: 0, right: 0, bottom: 0
+                  WebkitMaskImage: 'linear-gradient(180deg, #000 70%, transparent 100%)',
+                  maskImage: 'linear-gradient(180deg, #000 70%, transparent 100%)'
+                }}>
+                  
+                  // 3. THE SCROLLER: Fits perfectly inside the mask layer
+                  <div 
+                    onWheel={(e) => e.stopPropagation()} 
+                    onPointerDownCapture={(e) => e.stopPropagation()}
+                    onTouchStartCapture={(e) => e.stopPropagation()}
+                    onTouchMoveCapture={(e) => e.stopPropagation()}
+                    style={{ 
+                      height: '100%', 
+                      paddingRight: '1rem',
+                      overflowY: 'auto',
+                      WebkitOverflowScrolling: 'touch',
+                      overscrollBehavior: 'contain',
+                      touchAction: 'auto' 
+                    }}
+                  >
+                    <p style={{ fontSize: '1.2rem', color: '#DDD', margin: 0, lineHeight: 1.6, paddingBottom: '4rem' }}>
+                      {post.description}
+                    </p>
+                  </div>
                 </div>
-
+                
               </div>
             )}
       </div>
