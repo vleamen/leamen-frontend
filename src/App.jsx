@@ -349,9 +349,17 @@ const PostCard = ({ post, onClick, compact }) => {
             
             {post.description && (
               <div 
-                style={{ flex: '1 1 50%', overflowY: 'auto', paddingRight: '1rem' }}
                 onWheel={(e) => e.stopPropagation()} 
                 onPointerDown={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+                style={{ 
+                  flex: '1 1 50%', 
+                  paddingRight: '1rem',
+                  overflowY: 'auto',
+                  WebkitOverflowScrolling: 'touch',
+                  overscrollBehavior: 'contain',
+                  touchAction: 'pan-y'
+                }}
               >
                 <p style={{ fontSize: '1.2rem', color: '#DDD', margin: 0, lineHeight: 1.6 }}>{post.description}</p>
               </div>
