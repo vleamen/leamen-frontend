@@ -355,8 +355,8 @@ const PostCard = ({ post, onClick, compact }) => {
                 <div style={{ 
                   position: 'absolute', 
                   inset: 0, 
-                  WebkitMaskImage: 'linear-gradient(180deg, #000 70%, transparent 100%)',
-                  maskImage: 'linear-gradient(180deg, #000 70%, transparent 100%)'
+                  WebkitMaskImage: 'linear-gradient(180deg, #000 85%, transparent 100%)',
+                  maskImage: 'linear-gradient(180deg, #000 85%, transparent 100%)'
                 }}>
                   
                   {/* 3. THE SCROLLER: Fits perfectly inside the mask layer */}
