@@ -139,7 +139,7 @@ const SphereCluster = ({ activePage, overlayMode }) => {
     let targetX = 0, targetY = 0, targetZ = 0;
     if (activePage === 'code') { targetX = 0.2; targetY = 0.4; }
     else if (activePage === 'design') { targetY = 0.15; targetZ = 0.1; }
-    else if (activePage === 'music') { targetX = 0.2; targetY = 0.4; } 
+    else if (activePage === 'music') { targetX = 0.0; targetY = 0.4; } 
     else if (activePage === 'shop') { targetY = 0.8; } 
 
     rotSpeed.current.x = THREE.MathUtils.damp(rotSpeed.current.x, targetX, 4, clampedDelta);
