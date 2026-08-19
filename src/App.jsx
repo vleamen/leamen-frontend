@@ -147,7 +147,7 @@ const SphereCluster = ({ activePage, overlayMode }) => {
     rotSpeed.current.z = THREE.MathUtils.damp(rotSpeed.current.z, targetZ, 4, clampedDelta);
 
     if (groupRef.current) {
-      if (activePage === 'home' || activePage === 'shop') {
+      if (activePage === 'home' || activePage === 'shop' || activePage === 'music') {
         let rx = groupRef.current.rotation.x % (Math.PI * 2);
         let rz = groupRef.current.rotation.z % (Math.PI * 2);
         if (rx > Math.PI) rx -= Math.PI * 2; else if (rx < -Math.PI) rx += Math.PI * 2;
@@ -176,37 +176,43 @@ const SphereCluster = ({ activePage, overlayMode }) => {
         targetPos.set(x * 1.2, y * 1.2, z * 1.2);
       } 
       else if (activePage === 'design') {
-        // 1. The Nucleus: 3 spheres tightly grouped and spinning in the center
+        // 1. The Nucleus: 3 spheres tumbling dynamically in the center
         if (i < 3) {
-          const angle = (i / 3) * Math.PI * 2 + (t * 2);
-          const radius = 0.25;
+          const angle = (i / 3) * Math.PI * 2 + (t * 2.5);
+          const radius = 0.3;
           targetPos.set(
             Math.cos(angle) * radius, 
             Math.sin(angle) * radius, 
             Math.cos(angle * 1.5) * radius
           );
         } 
-        // 2. The Electron Orbitals: 3 perfectly symmetrical, intersecting rings
+        // 2. The Nested Gyroscope: 3 distinct, non-intersecting rings
         else {
           const electronIdx = i - 3; 
-          const ring = Math.floor(electronIdx / 8); // Groups into Ring 0, 1, or 2
-          const offset = (electronIdx % 8) * (Math.PI / 4); // Spaces 8 spheres evenly
+          const ring = Math.floor(electronIdx / 8); 
+          const offset = (electronIdx % 8) * (Math.PI / 4); 
           
-          const radius = 2.0;
-          const angle = (t * 1.5) + offset; 
+          // CRITICAL: Expand the radius for each ring (1.3, 1.9, 2.5) 
+          // so they physically cannot touch each other
+          const radius = 1.3 + (ring * 0.6); 
           
-          // Create a perfect 2D circle first
-          const baseX = Math.cos(angle) * radius;
-          const baseY = Math.sin(angle) * radius;
+          // Alternate rotation direction so the mechanical layers feel complex
+          const speed = ring === 1 ? -1.2 : 1.5; 
+          const angle = (t * speed) + offset; 
           
-          // Tilt each ring by 60 degrees (PI / 3) to create the classic atom cross-section
-          const tilt = ring * (Math.PI / 3); 
-          
-          targetPos.set(
-            baseX * Math.cos(tilt),
-            baseY,
-            baseX * Math.sin(tilt)
-          );
+          // Assign each ring to a completely different 3D axis plane
+          if (ring === 0) {
+            // Inner ring orbits flat on the XZ plane (spins around Y)
+            targetPos.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+          } 
+          else if (ring === 1) {
+            // Middle ring orbits vertically on the XY plane (spins around Z)
+            targetPos.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
+          } 
+          else {
+            // Outer ring orbits vertically on the YZ plane (spins around X)
+            targetPos.set(0, Math.cos(angle) * radius, Math.sin(angle) * radius);
+          }
         }
       }
       else if (activePage === 'music') {
