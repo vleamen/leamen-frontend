@@ -186,31 +186,29 @@ const SphereCluster = ({ activePage, overlayMode }) => {
             Math.cos(angle * 1.5) * radius
           );
         } 
-        // 2. The Nested Gyroscope: 3 distinct, non-intersecting rings
+        // 2. The Spherical Gyroscope: 3 rings forming a perfect outer shell
         else {
           const electronIdx = i - 3; 
           const ring = Math.floor(electronIdx / 8); 
           const offset = (electronIdx % 8) * (Math.PI / 4); 
           
-          // CRITICAL: Expand the radius for each ring (1.3, 1.9, 2.5) 
-          // so they physically cannot touch each other
-          const radius = 1.3 + (ring * 0.6); 
+          // Unified radius so all spheres orbit on the exact same boundary
+          const radius = 2.0; 
           
-          // Alternate rotation direction so the mechanical layers feel complex
-          const speed = ring === 1 ? -1.2 : 1.5; 
-          const angle = (t * speed) + offset; 
+          // Lock the speed (1.5) and add a phase shift (PI / 8) 
+          // so the spheres flawlessly dodge each other at the axis crossings
+          const speed = 1.5; 
+          const phaseShift = ring * (Math.PI / 8);
+          const angle = (t * speed) + offset + phaseShift; 
           
-          // Assign each ring to a completely different 3D axis plane
+          // Keep them strictly locked to the 3 distinct 3D planes
           if (ring === 0) {
-            // Inner ring orbits flat on the XZ plane (spins around Y)
             targetPos.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
           } 
           else if (ring === 1) {
-            // Middle ring orbits vertically on the XY plane (spins around Z)
             targetPos.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
           } 
           else {
-            // Outer ring orbits vertically on the YZ plane (spins around X)
             targetPos.set(0, Math.cos(angle) * radius, Math.sin(angle) * radius);
           }
         }
