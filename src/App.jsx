@@ -1190,7 +1190,7 @@ export default function App() {
                     padding: '0.5rem 1rem'
                   }}
                 >
-                  return
+                  return home
                 </motion.button>
 
                 {/* NEXT POST ARROW */}
