@@ -847,7 +847,7 @@ export default function App() {
                   <button
                     type="submit"
                     disabled={isSending}
-                    style={{ background: 'transparent', border: 'none', padding: '1rem', color: '#000', fontSize: '1.2rem', fontFamily: 'inherit', cursor: isSending ? 'default' : 'pointer', width: '100%', fontWeight: 'bold' }}
+                    style={{ background: 'transparent', border: 'none', padding: '1rem', color: '#000', fontSize: '1.2rem', fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', cursor: isSending ? 'default' : 'pointer', width: '100%', fontWeight: 'bold' }}
                   >
                     {isSending ? 'sending...' : sendSuccess ? 'sent!' : 'send'}
                   </button>
