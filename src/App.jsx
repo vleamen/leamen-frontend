@@ -522,7 +522,7 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
 
-  // HIDDEN ADMIN SHORTCUT (Cmd/Ctrl + Shift + L)
+// HIDDEN ADMIN SHORTCUT (Cmd/Ctrl + Shift + L)
   useEffect(() => {
     const handleAdminShortcut = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'l') {
@@ -534,6 +534,25 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleAdminShortcut);
   }, [adminToken]);
 
+  // 1. DEFINE VARIABLES FIRST
+  const inputStyle = {
+    width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255, 255, 255, 0.3)',
+    borderRadius: '12px', padding: '1rem', color: '#FFF', fontFamily: 'inherit',
+    fontSize: '1rem', marginBottom: '1rem', outline: 'none', boxSizing: 'border-box'
+  };
+
+  const sortedPosts = useMemo(() => {
+    return [...posts].sort((a, b) => {
+      const dateA = getSafeTimestamp(a.date);
+      const dateB = getSafeTimestamp(b.date);
+      if (dateA !== dateB) return dateB - dateA;
+      return b.id - a.id; 
+    });
+  }, [posts]);
+
+  const activeGroupPosts = sortedPosts.filter(p => p.group === activePage);
+
+  // 2. USE THEM IN THE ARROW KEY LISTENER SECOND
   // ARROW KEY GALLERY NAVIGATION
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -560,29 +579,6 @@ export default function App() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [overlayMode, publicGalleryIndex, activeGroupPosts.length]);
-  
-  const inputStyle = {
-    width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255, 255, 255, 0.3)',
-    borderRadius: '12px', padding: '1rem', color: '#FFF', fontFamily: 'inherit',
-    fontSize: '1rem', marginBottom: '1rem', outline: 'none', boxSizing: 'border-box'
-  };
-
-  const sortedPosts = useMemo(() => {
-    return [...posts].sort((a, b) => {
-      const dateA = getSafeTimestamp(a.date);
-      const dateB = getSafeTimestamp(b.date);
-      
-      // If the dates are different, sort chronologically
-      if (dateA !== dateB) {
-        return dateB - dateA;
-      }
-      
-      // If the dates are identical (or both blank), sort by newest added
-      return b.id - a.id; 
-    });
-  }, [posts]);
-
-  const activeGroupPosts = sortedPosts.filter(p => p.group === activePage);
 
   const handleContactSubmit = async (e) => {
     e.preventDefault();
