@@ -534,6 +534,33 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleAdminShortcut);
   }, [adminToken]);
 
+  // ARROW KEY GALLERY NAVIGATION
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Only run this if we are actively looking at a public gallery with more than 1 post
+      if (overlayMode !== 'public_gallery' || activeGroupPosts.length <= 1) return;
+      
+      if (e.key === 'ArrowRight') {
+        if (publicGalleryIndex < activeGroupPosts.length - 1) {
+          setPublicGalleryIndex(p => p + 1);
+        } else {
+          // Trigger the visual bounce if they try to go past the last post
+          setScrollBounce(-40); setTimeout(() => setScrollBounce(0), 100);
+        }
+      } else if (e.key === 'ArrowLeft') {
+        if (publicGalleryIndex > 0) {
+          setPublicGalleryIndex(p => p - 1);
+        } else {
+          // Trigger the visual bounce if they try to go past the first post
+          setScrollBounce(40); setTimeout(() => setScrollBounce(0), 100);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [overlayMode, publicGalleryIndex, activeGroupPosts.length]);
+  
   const inputStyle = {
     width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255, 255, 255, 0.3)',
     borderRadius: '12px', padding: '1rem', color: '#FFF', fontFamily: 'inherit',
